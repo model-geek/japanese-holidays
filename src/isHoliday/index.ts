@@ -1,6 +1,6 @@
 import type { DateInput, DateLookup } from '../types.js';
-import { formatDate } from '../_internal/formatDate.js';
 import { isWeekend } from '../isWeekend/index.js';
+import { createIsNationalHoliday } from '../isNationalHoliday/index.js';
 
 /**
  * isHoliday 関数を生成する
@@ -16,6 +16,8 @@ import { isWeekend } from '../isWeekend/index.js';
  * ```
  */
 export function createIsHoliday(holidayDates: DateLookup) {
+  const isNationalHoliday = createIsNationalHoliday(holidayDates);
+
   /**
    * 指定した日付が休日（祝日または土日）かどうかを判定する
    *
@@ -35,6 +37,6 @@ export function createIsHoliday(holidayDates: DateLookup) {
    * ```
    */
   return function isHoliday(date: DateInput): boolean {
-    return isWeekend(date) || holidayDates.has(formatDate(date));
+    return isWeekend(date) || isNationalHoliday(date);
   };
 }
