@@ -10,8 +10,9 @@ type DatePredicate = (date: Date) => boolean;
  * @param predicate - 条件を満たすかを判定する関数
  * @returns 条件を満たす次の日付
  */
-export const findNext = (current: Date, predicate: DatePredicate): Date =>
-  predicate(current) ? current : findNext(addDays(current, 1), predicate);
+export const findNext = (current: Date, predicate: DatePredicate): Date => {
+  return predicate(current) ? current : findNext(addDays(current, 1), predicate);
+};
 
 /**
  * 条件を満たす前の日付を探す
@@ -20,8 +21,9 @@ export const findNext = (current: Date, predicate: DatePredicate): Date =>
  * @param predicate - 条件を満たすかを判定する関数
  * @returns 条件を満たす前の日付
  */
-export const findPrev = (current: Date, predicate: DatePredicate): Date =>
-  predicate(current) ? current : findPrev(addDays(current, -1), predicate);
+export const findPrev = (current: Date, predicate: DatePredicate): Date => {
+  return predicate(current) ? current : findPrev(addDays(current, -1), predicate);
+};
 
 /**
  * 条件を満たす日付を数えながら前進する
