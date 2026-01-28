@@ -29,8 +29,8 @@
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf dist",
-    "test": "bash -c 'node --test src/**/*.test.ts'",
-    "test:ci": "bash -c 'node --test dist/**/*.test.js'",
+    "test": "node --test src/*.test.ts src/**/*.test.ts",
+    "test:ci": "node --test dist/*.test.js dist/**/*.test.js",
     "prepublishOnly": "npm run clean && npm run build"
   },
   "engines": {
