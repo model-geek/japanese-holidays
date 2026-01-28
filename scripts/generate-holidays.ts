@@ -1,3 +1,9 @@
+import { writeFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+
+const CSV_URL = 'https://www8.cao.go.jp/chosei/shukujitsu/syukujitsu.csv';
+
 /**
  * 祝日データ
  */
@@ -34,7 +40,9 @@ function formatDate(dateStr: string): string {
  * ```
  */
 export function parseCsv(csvText: string): Holiday[] {
-  const lines = csvText.trim().split('\n');
+  // CRLF を LF に正規化
+  const normalized = csvText.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  const lines = normalized.trim().split('\n');
   return lines
     .slice(1) // ヘッダーをスキップ
     .filter((line) => line.trim() !== '') // 空行をスキップ
@@ -82,4 +90,64 @@ export function generateHolidayDatesJson(holidays: Holiday[]): string {
 export function generateHolidayNamesJson(holidays: Holiday[]): string {
   const names = Object.fromEntries(holidays.map((h) => [h.date, h.name]));
   return JSON.stringify(names);
+}
+
+/**
+ * 指定 URL から CSV を取得し、Shift_JIS から UTF-8 に変換して返す
+ *
+ * @param url - CSV の URL
+ * @returns UTF-8 に変換された CSV テキスト
+ * @throws HTTP エラーの場合
+ *
+ * @example
+ * ```typescript
+ * const csvText = await fetchCsv('https://www8.cao.go.jp/chosei/shukujitsu/syukujitsu.csv');
+ * ```
+ */
+export async function fetchCsv(url: string): Promise<string> {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch CSV: ${response.status} ${response.statusText}`
+    );
+  }
+  const buffer = await response.arrayBuffer();
+  return new TextDecoder('shift_jis').decode(buffer);
+}
+
+/**
+ * 内閣府 CSV から祝日データを取得し、JSON ファイルを生成する
+ *
+ * 以下のファイルを出力する:
+ * - `src/data/holiday-dates.json` — 祝日日付の配列
+ * - `src/data/holiday-names.json` — 日付をキー、祝日名を値とするオブジェクト
+ */
+async function generate(): Promise<void> {
+  console.log('Fetching CSV from', CSV_URL);
+  const csvText = await fetchCsv(CSV_URL);
+
+  console.log('Parsing CSV...');
+  const holidays = parseCsv(csvText);
+  console.log(`Parsed ${holidays.length} holidays`);
+
+  const __dirname = dirname(fileURLToPath(import.meta.url));
+  const dataDir = join(__dirname, '..', 'src', 'data');
+
+  const datesJson = generateHolidayDatesJson(holidays);
+  const namesJson = generateHolidayNamesJson(holidays);
+
+  await writeFile(join(dataDir, 'holiday-dates.json'), datesJson);
+  await writeFile(join(dataDir, 'holiday-names.json'), namesJson);
+
+  console.log('Generated:');
+  console.log('  - src/data/holiday-dates.json');
+  console.log('  - src/data/holiday-names.json');
+}
+
+// 直接実行された場合のみ generate() を呼ぶ
+if (import.meta.url === `file://${process.argv[1]}`) {
+  generate().catch((error) => {
+    console.error('Error:', error.message);
+    process.exit(1);
+  });
 }
