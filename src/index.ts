@@ -5,7 +5,10 @@
 import { holidayDates } from './_data/holidayDates.js';
 import { createIsNationalHoliday } from './isNationalHoliday/index.js';
 import { isWeekend } from './isWeekend/index.js';
+import { createIsHoliday } from './isHoliday/index.js';
 
-export const isNationalHoliday = createIsNationalHoliday(holidayDates);
-export { isWeekend };
+const isNationalHoliday = createIsNationalHoliday(holidayDates);
+const isHoliday = createIsHoliday(isWeekend, isNationalHoliday);
+
+export { isNationalHoliday, isWeekend, isHoliday };
 export type { DateInput } from './_internal/types.js';
