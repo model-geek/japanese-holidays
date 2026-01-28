@@ -2,9 +2,14 @@
  * 祝日データ
  */
 export interface Holiday {
-  /** 日付（YYYY-MM-DD 形式） */
+  /**
+   * 日付（YYYY-MM-DD 形式）
+   */
   date: string;
-  /** 祝日名 */
+
+  /**
+   * 祝日名
+   */
   name: string;
 }
 
