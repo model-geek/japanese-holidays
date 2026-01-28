@@ -83,6 +83,27 @@ export function isHoliday(date: DateInput): boolean {
 export type DateInput = Date | string;
 ```
 
+### インターフェース
+
+フィールドのコメントは複数行で記載し、フィールド間には空行を入れる。
+
+```typescript
+/**
+ * 祝日データ
+ */
+export interface Holiday {
+  /**
+   * 日付（YYYY-MM-DD 形式）
+   */
+  date: string;
+
+  /**
+   * 祝日名
+   */
+  name: string;
+}
+```
+
 ### 内部関数（複雑な場合のみ）
 
 ```typescript
