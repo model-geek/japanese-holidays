@@ -10,6 +10,8 @@ import {
   getNextBusinessDay,
   getPreviousBusinessDay,
   countBusinessDays,
+  getLastBusinessDayOfMonth,
+  getLastBusinessDayOfWeek,
 } from './index.ts';
 import { toJstDate } from './_internal/jst.js';
 
@@ -147,5 +149,31 @@ describe('default: countBusinessDays', () => {
   it('Date オブジェクトを受け付ける', () => {
     const result = countBusinessDays(toJstDate('2026-01-05'), toJstDate('2026-01-09'));
     assert.strictEqual(result, 5);
+  });
+});
+
+describe('default: getLastBusinessDayOfMonth', () => {
+  it('月末の最終営業日を返す', () => {
+    // 2026-01-31（土）→ 2026-01-30（金）
+    const result = getLastBusinessDayOfMonth('2026-01-15');
+    assert.strictEqual(result.getTime(), toJstDate('2026-01-30').getTime());
+  });
+
+  it('Date オブジェクトを受け付ける', () => {
+    const result = getLastBusinessDayOfMonth(toJstDate('2026-01-15'));
+    assert.strictEqual(result.getTime(), toJstDate('2026-01-30').getTime());
+  });
+});
+
+describe('default: getLastBusinessDayOfWeek', () => {
+  it('週の最終営業日を返す', () => {
+    // 2026-01-05（月）→ 2026-01-09（金）
+    const result = getLastBusinessDayOfWeek('2026-01-05');
+    assert.strictEqual(result.getTime(), toJstDate('2026-01-09').getTime());
+  });
+
+  it('Date オブジェクトを受け付ける', () => {
+    const result = getLastBusinessDayOfWeek(toJstDate('2026-01-05'));
+    assert.strictEqual(result.getTime(), toJstDate('2026-01-09').getTime());
   });
 });
