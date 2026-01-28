@@ -8,6 +8,7 @@ import {
   getHolidayName,
   getHolidaysInRange,
 } from './full.ts';
+import { toJstDate } from './_internal/jst.js';
 
 describe('full: isNationalHoliday', () => {
   it('祝日の場合 true を返す', () => {
@@ -19,9 +20,7 @@ describe('full: isNationalHoliday', () => {
   });
 
   it('Date オブジェクトを受け付ける', () => {
-    // JST 2026-01-01 = UTC 2025-12-31 15:00
-    const date = new Date('2025-12-31T15:00:00.000Z');
-    assert.strictEqual(isNationalHoliday(date), true);
+    assert.strictEqual(isNationalHoliday(toJstDate('2026-01-01')), true);
   });
 });
 
@@ -57,9 +56,7 @@ describe('full: isHoliday', () => {
   });
 
   it('Date オブジェクトを受け付ける', () => {
-    // JST 2026-01-01 = UTC 2025-12-31 15:00
-    const date = new Date('2025-12-31T15:00:00.000Z');
-    assert.strictEqual(isHoliday(date), true);
+    assert.strictEqual(isHoliday(toJstDate('2026-01-01')), true);
   });
 });
 
@@ -82,9 +79,7 @@ describe('full: isBusinessDay', () => {
   });
 
   it('Date オブジェクトを受け付ける', () => {
-    // JST 2026-01-02 = UTC 2026-01-01 15:00
-    const date = new Date('2026-01-01T15:00:00.000Z');
-    assert.strictEqual(isBusinessDay(date), true);
+    assert.strictEqual(isBusinessDay(toJstDate('2026-01-02')), true);
   });
 });
 
@@ -98,9 +93,7 @@ describe('full: getHolidayName', () => {
   });
 
   it('Date オブジェクトを受け付ける', () => {
-    // JST 2026-01-01 = UTC 2025-12-31 15:00
-    const date = new Date('2025-12-31T15:00:00.000Z');
-    assert.strictEqual(getHolidayName(date), '元日');
+    assert.strictEqual(getHolidayName(toJstDate('2026-01-01')), '元日');
   });
 });
 
@@ -118,10 +111,10 @@ describe('full: getHolidaysInRange', () => {
   });
 
   it('Date オブジェクトを受け付ける', () => {
-    // JST 2026-01-01 = UTC 2025-12-31 15:00, JST 2026-01-31 = UTC 2026-01-30 15:00
-    const start = new Date('2025-12-31T15:00:00.000Z');
-    const end = new Date('2026-01-30T15:00:00.000Z');
-    const holidays = getHolidaysInRange(start, end);
+    const holidays = getHolidaysInRange(
+      toJstDate('2026-01-01'),
+      toJstDate('2026-01-31'),
+    );
     assert.ok(holidays.length > 0);
     assert.strictEqual(holidays[0].date, '2026-01-01');
   });

@@ -1,6 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
 import { isNationalHoliday, isWeekend, isHoliday, isBusinessDay } from './index.ts';
+import { toJstDate } from './_internal/jst.js';
 
 describe('default: isNationalHoliday', () => {
   it('祝日の場合 true を返す', () => {
@@ -12,9 +13,7 @@ describe('default: isNationalHoliday', () => {
   });
 
   it('Date オブジェクトを受け付ける', () => {
-    // JST 2026-01-01 = UTC 2025-12-31 15:00
-    const date = new Date('2025-12-31T15:00:00.000Z');
-    assert.strictEqual(isNationalHoliday(date), true);
+    assert.strictEqual(isNationalHoliday(toJstDate('2026-01-01')), true);
   });
 });
 
@@ -50,9 +49,7 @@ describe('default: isHoliday', () => {
   });
 
   it('Date オブジェクトを受け付ける', () => {
-    // JST 2026-01-01 = UTC 2025-12-31 15:00
-    const date = new Date('2025-12-31T15:00:00.000Z');
-    assert.strictEqual(isHoliday(date), true);
+    assert.strictEqual(isHoliday(toJstDate('2026-01-01')), true);
   });
 });
 
@@ -75,8 +72,6 @@ describe('default: isBusinessDay', () => {
   });
 
   it('Date オブジェクトを受け付ける', () => {
-    // JST 2026-01-02 = UTC 2026-01-01 15:00
-    const date = new Date('2026-01-01T15:00:00.000Z');
-    assert.strictEqual(isBusinessDay(date), true);
+    assert.strictEqual(isBusinessDay(toJstDate('2026-01-02')), true);
   });
 });

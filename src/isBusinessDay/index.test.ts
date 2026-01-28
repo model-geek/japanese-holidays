@@ -1,6 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
 import { createIsBusinessDay } from './index.js';
+import { toJstDate } from '../_internal/jst.js';
 
 describe('createIsBusinessDay', () => {
   const mockHolidayDates = new Set(['2025-01-01', '2025-01-13']);
@@ -42,21 +43,15 @@ describe('createIsBusinessDay', () => {
 
   describe('Date オブジェクトの受け付け', () => {
     it('Date オブジェクトで営業日を判定できる', () => {
-      // JST 2025-01-06 = UTC 2025-01-05 15:00
-      const date = new Date('2025-01-05T15:00:00.000Z');
-      assert.strictEqual(isBusinessDay(date), true);
+      assert.strictEqual(isBusinessDay(toJstDate('2025-01-06')), true);
     });
 
     it('Date オブジェクトで土曜日を判定できる', () => {
-      // JST 2025-01-04 = UTC 2025-01-03 15:00
-      const date = new Date('2025-01-03T15:00:00.000Z');
-      assert.strictEqual(isBusinessDay(date), false);
+      assert.strictEqual(isBusinessDay(toJstDate('2025-01-04')), false);
     });
 
     it('Date オブジェクトで祝日を判定できる', () => {
-      // JST 2025-01-01 = UTC 2024-12-31 15:00
-      const date = new Date('2024-12-31T15:00:00.000Z');
-      assert.strictEqual(isBusinessDay(date), false);
+      assert.strictEqual(isBusinessDay(toJstDate('2025-01-01')), false);
     });
   });
 
