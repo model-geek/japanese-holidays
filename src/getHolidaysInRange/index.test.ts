@@ -57,7 +57,8 @@ describe('createGetHolidaysInRange', () => {
 
   describe('Date オブジェクトの受け付け', () => {
     it('開始日に Date オブジェクトを受け付ける', () => {
-      const start = new Date(2025, 0, 1);
+      // JST 2025-01-01 = UTC 2024-12-31 15:00
+      const start = new Date('2024-12-31T15:00:00.000Z');
       const holidays = getHolidaysInRange(start, '2025-01-31');
       assert.deepStrictEqual(holidays, [
         { date: '2025-01-01', name: '元日' },
@@ -66,7 +67,8 @@ describe('createGetHolidaysInRange', () => {
     });
 
     it('終了日に Date オブジェクトを受け付ける', () => {
-      const end = new Date(2025, 0, 31);
+      // JST 2025-01-31 = UTC 2025-01-30 15:00
+      const end = new Date('2025-01-30T15:00:00.000Z');
       const holidays = getHolidaysInRange('2025-01-01', end);
       assert.deepStrictEqual(holidays, [
         { date: '2025-01-01', name: '元日' },
@@ -75,8 +77,9 @@ describe('createGetHolidaysInRange', () => {
     });
 
     it('両方に Date オブジェクトを受け付ける', () => {
-      const start = new Date(2025, 0, 1);
-      const end = new Date(2025, 0, 31);
+      // JST 2025-01-01 = UTC 2024-12-31 15:00, JST 2025-01-31 = UTC 2025-01-30 15:00
+      const start = new Date('2024-12-31T15:00:00.000Z');
+      const end = new Date('2025-01-30T15:00:00.000Z');
       const holidays = getHolidaysInRange(start, end);
       assert.deepStrictEqual(holidays, [
         { date: '2025-01-01', name: '元日' },

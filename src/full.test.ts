@@ -19,7 +19,8 @@ describe('full: isNationalHoliday', () => {
   });
 
   it('Date オブジェクトを受け付ける', () => {
-    const date = new Date(2026, 0, 1); // 2026-01-01
+    // JST 2026-01-01 = UTC 2025-12-31 15:00
+    const date = new Date('2025-12-31T15:00:00.000Z');
     assert.strictEqual(isNationalHoliday(date), true);
   });
 });
@@ -56,7 +57,8 @@ describe('full: isHoliday', () => {
   });
 
   it('Date オブジェクトを受け付ける', () => {
-    const date = new Date(2026, 0, 1); // 2026-01-01
+    // JST 2026-01-01 = UTC 2025-12-31 15:00
+    const date = new Date('2025-12-31T15:00:00.000Z');
     assert.strictEqual(isHoliday(date), true);
   });
 });
@@ -80,7 +82,8 @@ describe('full: isBusinessDay', () => {
   });
 
   it('Date オブジェクトを受け付ける', () => {
-    const date = new Date(2026, 0, 2); // 2026-01-02 金曜日
+    // JST 2026-01-02 = UTC 2026-01-01 15:00
+    const date = new Date('2026-01-01T15:00:00.000Z');
     assert.strictEqual(isBusinessDay(date), true);
   });
 });
@@ -95,7 +98,8 @@ describe('full: getHolidayName', () => {
   });
 
   it('Date オブジェクトを受け付ける', () => {
-    const date = new Date(2026, 0, 1); // 2026-01-01
+    // JST 2026-01-01 = UTC 2025-12-31 15:00
+    const date = new Date('2025-12-31T15:00:00.000Z');
     assert.strictEqual(getHolidayName(date), '元日');
   });
 });
@@ -114,8 +118,9 @@ describe('full: getHolidaysInRange', () => {
   });
 
   it('Date オブジェクトを受け付ける', () => {
-    const start = new Date(2026, 0, 1);
-    const end = new Date(2026, 0, 31);
+    // JST 2026-01-01 = UTC 2025-12-31 15:00, JST 2026-01-31 = UTC 2026-01-30 15:00
+    const start = new Date('2025-12-31T15:00:00.000Z');
+    const end = new Date('2026-01-30T15:00:00.000Z');
     const holidays = getHolidaysInRange(start, end);
     assert.ok(holidays.length > 0);
     assert.strictEqual(holidays[0].date, '2026-01-01');

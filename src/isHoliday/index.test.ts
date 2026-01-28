@@ -37,17 +37,20 @@ describe('createIsHoliday', () => {
 
   describe('Date オブジェクトの受け付け', () => {
     it('Date オブジェクトで祝日を判定できる', () => {
-      const date = new Date(2025, 0, 1);
+      // JST 2025-01-01 = UTC 2024-12-31 15:00
+      const date = new Date('2024-12-31T15:00:00.000Z');
       assert.strictEqual(isHoliday(date), true);
     });
 
     it('Date オブジェクトで土曜日を判定できる', () => {
-      const date = new Date(2025, 0, 4);
+      // JST 2025-01-04 = UTC 2025-01-03 15:00
+      const date = new Date('2025-01-03T15:00:00.000Z');
       assert.strictEqual(isHoliday(date), true);
     });
 
     it('Date オブジェクトで平日を判定できる', () => {
-      const date = new Date(2025, 0, 6);
+      // JST 2025-01-06 = UTC 2025-01-05 15:00
+      const date = new Date('2025-01-05T15:00:00.000Z');
       assert.strictEqual(isHoliday(date), false);
     });
   });
