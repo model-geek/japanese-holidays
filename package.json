@@ -5,6 +5,22 @@
   "type": "module",
   "license": "MIT",
   "keywords": ["japanese", "holidays", "japan", "祝日", "typescript"],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./light": {
+      "types": "./dist/light.d.ts",
+      "default": "./dist/light.js"
+    }
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run clean && npm run build"
+  },
   "engines": {
     "node": ">=18.0.0"
   },
