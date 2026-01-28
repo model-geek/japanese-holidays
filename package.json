@@ -29,7 +29,7 @@
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf dist",
-    "test": "node --import tsx --test $(find src -name '*.test.ts')",
+    "test": "node --import tsx --test $(find src scripts -name '*.test.ts')",
     "prepublishOnly": "npm run clean && npm run build"
   },
   "engines": {
