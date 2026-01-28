@@ -5,6 +5,9 @@
 - import パスには `.js` 拡張子を付ける（例: `import { x } from './core.js'`）
   - `tsc` は import パスを書き換えないため、ESM で実行時に解決できるよう明示する必要がある
 - ランタイム依存ライブラリは追加しない（devDependencies のみ許可）
+- ソースファイル・ディレクトリ名はケバブケースを使用する（例: `holiday-dates.ts`, `get-holiday-name.ts`）
+  - `index.ts` 等の慣習的な名前はそのまま使う
+  - 設定ファイル（`tsconfig.json` 等）やメタファイル（`README.md`, `LICENSE` 等）は慣習に従う
 
 ## package.json
 
