@@ -1,6 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
 import { createIsHoliday } from './index.js';
+import { toJstDate } from '../_internal/jst.js';
 
 describe('createIsHoliday', () => {
   const mockHolidayDates = new Set(['2025-01-01', '2025-01-13']);
@@ -37,18 +38,15 @@ describe('createIsHoliday', () => {
 
   describe('Date オブジェクトの受け付け', () => {
     it('Date オブジェクトで祝日を判定できる', () => {
-      const date = new Date(2025, 0, 1);
-      assert.strictEqual(isHoliday(date), true);
+      assert.strictEqual(isHoliday(toJstDate('2025-01-01')), true);
     });
 
     it('Date オブジェクトで土曜日を判定できる', () => {
-      const date = new Date(2025, 0, 4);
-      assert.strictEqual(isHoliday(date), true);
+      assert.strictEqual(isHoliday(toJstDate('2025-01-04')), true);
     });
 
     it('Date オブジェクトで平日を判定できる', () => {
-      const date = new Date(2025, 0, 6);
-      assert.strictEqual(isHoliday(date), false);
+      assert.strictEqual(isHoliday(toJstDate('2025-01-06')), false);
     });
   });
 

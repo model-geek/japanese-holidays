@@ -1,6 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
 import { createGetHolidaysInRange } from './index.js';
+import { toJstDate } from '../_internal/jst.js';
 
 describe('createGetHolidaysInRange', () => {
   const mockHolidayNames = new Map([
@@ -57,8 +58,7 @@ describe('createGetHolidaysInRange', () => {
 
   describe('Date オブジェクトの受け付け', () => {
     it('開始日に Date オブジェクトを受け付ける', () => {
-      const start = new Date(2025, 0, 1);
-      const holidays = getHolidaysInRange(start, '2025-01-31');
+      const holidays = getHolidaysInRange(toJstDate('2025-01-01'), '2025-01-31');
       assert.deepStrictEqual(holidays, [
         { date: '2025-01-01', name: '元日' },
         { date: '2025-01-13', name: '成人の日' },
@@ -66,8 +66,7 @@ describe('createGetHolidaysInRange', () => {
     });
 
     it('終了日に Date オブジェクトを受け付ける', () => {
-      const end = new Date(2025, 0, 31);
-      const holidays = getHolidaysInRange('2025-01-01', end);
+      const holidays = getHolidaysInRange('2025-01-01', toJstDate('2025-01-31'));
       assert.deepStrictEqual(holidays, [
         { date: '2025-01-01', name: '元日' },
         { date: '2025-01-13', name: '成人の日' },
@@ -75,9 +74,10 @@ describe('createGetHolidaysInRange', () => {
     });
 
     it('両方に Date オブジェクトを受け付ける', () => {
-      const start = new Date(2025, 0, 1);
-      const end = new Date(2025, 0, 31);
-      const holidays = getHolidaysInRange(start, end);
+      const holidays = getHolidaysInRange(
+        toJstDate('2025-01-01'),
+        toJstDate('2025-01-31'),
+      );
       assert.deepStrictEqual(holidays, [
         { date: '2025-01-01', name: '元日' },
         { date: '2025-01-13', name: '成人の日' },
