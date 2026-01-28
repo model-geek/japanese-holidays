@@ -1,12 +1,39 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
 import {
+  createJstDate,
   toJstDate,
   getJstFullYear,
   getJstMonth,
   getJstDate,
   getJstDay,
 } from './jst.ts';
+
+describe('createJstDate', () => {
+  it('年月日から JST の Date を作成する', () => {
+    const result = createJstDate(2025, 0, 1);
+    // JST の 2025-01-01 00:00:00 は UTC の 2024-12-31 15:00:00
+    assert.strictEqual(result.toISOString(), '2024-12-31T15:00:00.000Z');
+  });
+
+  it('月は 0-indexed', () => {
+    // 12月 = 11
+    const result = createJstDate(2025, 11, 15);
+    assert.strictEqual(result.toISOString(), '2025-12-14T15:00:00.000Z');
+  });
+
+  it('日に 0 を指定すると前月の末日になる', () => {
+    // 2月の 0 日 = 1月31日
+    const result = createJstDate(2025, 1, 0);
+    assert.strictEqual(result.toISOString(), '2025-01-30T15:00:00.000Z');
+  });
+
+  it('うるう年の 2 月末日を正しく扱う', () => {
+    // 2024年3月の 0 日 = 2024年2月29日
+    const result = createJstDate(2024, 2, 0);
+    assert.strictEqual(result.toISOString(), '2024-02-28T15:00:00.000Z');
+  });
+});
 
 describe('toJstDate', () => {
   describe('文字列入力', () => {

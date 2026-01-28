@@ -4,6 +4,30 @@ import type { DateInput } from './types.js';
 const JST_OFFSET_MS = 9 * 60 * 60 * 1000;
 
 /**
+ * 年月日から JST の Date オブジェクトを作成する
+ *
+ * Date.UTC と同様に月は 0-indexed（0 = 1月）。
+ * 日に 0 を指定すると前月の末日になる。
+ *
+ * @param year - 年
+ * @param month - 月（0-11）
+ * @param day - 日（1-31、0 で前月末日）
+ * @returns JST でその日の 00:00:00 を表す Date オブジェクト
+ *
+ * @example
+ * ```typescript
+ * createJstDate(2025, 0, 1).toISOString();
+ * // => '2024-12-31T15:00:00.000Z'（JST の 2025-01-01 00:00:00）
+ *
+ * createJstDate(2025, 1, 0).toISOString();
+ * // => '2025-01-30T15:00:00.000Z'（JST の 2025-01-31 00:00:00、1月の末日）
+ * ```
+ */
+export function createJstDate(year: number, month: number, day: number): Date {
+  return new Date(Date.UTC(year, month, day) - JST_OFFSET_MS);
+}
+
+/**
  * DateInput を JST の Date オブジェクトに変換する
  *
  * 返される Date オブジェクトは、JST でその日の 00:00:00 を表す。
@@ -21,16 +45,16 @@ const JST_OFFSET_MS = 9 * 60 * 60 * 1000;
 export function toJstDate(date: DateInput): Date {
   if (typeof date === 'string') {
     const [year, month, day] = date.split('-').map(Number);
-    // JST の YYYY-MM-DD 00:00:00 は UTC の前日 15:00:00
-    return new Date(Date.UTC(year, month - 1, day) - JST_OFFSET_MS);
+    return createJstDate(year, month - 1, day);
   }
   // Date オブジェクトの場合、その瞬間の JST での日付を取得
   const jstTime = date.getTime() + JST_OFFSET_MS;
   const jstDate = new Date(jstTime);
-  const year = jstDate.getUTCFullYear();
-  const month = jstDate.getUTCMonth();
-  const day = jstDate.getUTCDate();
-  return new Date(Date.UTC(year, month, day) - JST_OFFSET_MS);
+  return createJstDate(
+    jstDate.getUTCFullYear(),
+    jstDate.getUTCMonth(),
+    jstDate.getUTCDate()
+  );
 }
 
 /**
