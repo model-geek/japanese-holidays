@@ -1,27 +1,5 @@
-import type { DateInput } from '../_internal/types.js';
+import type { DateInput, Holiday, HolidayNameLookup } from '../types.js';
 import { formatDate } from '../_internal/formatDate.js';
-
-/**
- * 祝日データ
- */
-export interface Holiday {
-  /**
-   * 日付（YYYY-MM-DD 形式）
-   */
-  date: string;
-
-  /**
-   * 祝日名
-   */
-  name: string;
-}
-
-/**
- * 祝日名が取得可能なオブジェクト
- */
-interface HolidayNameMap {
-  entries(): Iterable<[string, string]>;
-}
 
 /**
  * getHolidaysInRange 関数を生成する
@@ -36,7 +14,7 @@ interface HolidayNameMap {
  * // => [{ date: '2025-01-01', name: '元日' }, { date: '2025-01-13', name: '成人の日' }]
  * ```
  */
-export function createGetHolidaysInRange(holidayNames: HolidayNameMap) {
+export function createGetHolidaysInRange(holidayNames: HolidayNameLookup) {
   /**
    * 期間内の祝日一覧を返す
    *

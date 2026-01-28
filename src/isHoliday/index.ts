@@ -1,28 +1,21 @@
-import type { DateInput } from '../_internal/types.js';
-
-/**
- * 日付が休日かどうかを判定する関数の型
- */
-type HolidayChecker = (date: DateInput) => boolean;
+import type { DateInput, DateLookup } from '../types.js';
+import { formatDate } from '../_internal/formatDate.js';
+import { isWeekend } from '../isWeekend/index.js';
 
 /**
  * isHoliday 関数を生成する
  *
- * @param isWeekend - 土日かどうかを判定する関数
- * @param isNationalHoliday - 祝日かどうかを判定する関数
+ * @param holidayDates - 祝日の日付セット
  * @returns isHoliday 関数
  *
  * @example
  * ```typescript
- * const isHoliday = createIsHoliday(isWeekend, isNationalHoliday);
+ * const isHoliday = createIsHoliday(holidayDates);
  * isHoliday('2025-01-01');
  * // => true（元日）
  * ```
  */
-export function createIsHoliday(
-  isWeekend: HolidayChecker,
-  isNationalHoliday: HolidayChecker,
-) {
+export function createIsHoliday(holidayDates: DateLookup) {
   /**
    * 指定した日付が休日（祝日または土日）かどうかを判定する
    *
@@ -42,6 +35,6 @@ export function createIsHoliday(
    * ```
    */
   return function isHoliday(date: DateInput): boolean {
-    return isWeekend(date) || isNationalHoliday(date);
+    return isWeekend(date) || holidayDates.has(formatDate(date));
   };
 }

@@ -1,4 +1,4 @@
-import type { DateInput } from './types.js';
+import type { DateInput } from '../types.js';
 
 /** JST のオフセット（ミリ秒） */
 const JST_OFFSET_MS = 9 * 60 * 60 * 1000;

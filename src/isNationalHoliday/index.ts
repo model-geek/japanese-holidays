@@ -1,12 +1,5 @@
-import type { DateInput } from '../_internal/types.js';
+import type { DateInput, DateLookup } from '../types.js';
 import { formatDate } from '../_internal/formatDate.js';
-
-/**
- * 日付の存在確認が可能なオブジェクト
- */
-interface DateLookup {
-  has(key: string): boolean;
-}
 
 /**
  * isNationalHoliday 関数を生成する

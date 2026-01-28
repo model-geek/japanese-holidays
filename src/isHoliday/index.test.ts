@@ -1,13 +1,10 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
 import { createIsHoliday } from './index.js';
-import { isWeekend } from '../isWeekend/index.js';
-import { createIsNationalHoliday } from '../isNationalHoliday/index.js';
 
 describe('createIsHoliday', () => {
   const mockHolidayDates = new Set(['2025-01-01', '2025-01-13']);
-  const isNationalHoliday = createIsNationalHoliday(mockHolidayDates);
-  const isHoliday = createIsHoliday(isWeekend, isNationalHoliday);
+  const isHoliday = createIsHoliday(mockHolidayDates);
 
   describe('祝日の判定', () => {
     it('祝日の場合 true を返す', () => {
@@ -59,9 +56,20 @@ describe('createIsHoliday', () => {
     it('祝日が土曜日と重なる場合 true を返す', () => {
       // テスト用のモックデータで土曜日が祝日の場合を想定
       const saturdayHoliday = new Set(['2025-01-04']);
-      const isNationalHolidaySat = createIsNationalHoliday(saturdayHoliday);
-      const isHolidaySat = createIsHoliday(isWeekend, isNationalHolidaySat);
+      const isHolidaySat = createIsHoliday(saturdayHoliday);
       assert.strictEqual(isHolidaySat('2025-01-04'), true);
+    });
+  });
+
+  describe('Map をデータソースとして使用', () => {
+    it('Map でも動作する', () => {
+      const holidayNames = new Map([
+        ['2025-01-01', '元日'],
+        ['2025-01-13', '成人の日'],
+      ]);
+      const isHolidayWithMap = createIsHoliday(holidayNames);
+      assert.strictEqual(isHolidayWithMap('2025-01-01'), true);
+      assert.strictEqual(isHolidayWithMap('2025-01-02'), false);
     });
   });
 });

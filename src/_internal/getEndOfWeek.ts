@@ -1,4 +1,4 @@
-import type { DateInput } from './types.js';
+import type { DateInput } from '../types.js';
 import { addDays } from './addDays.js';
 import { getJstDay } from './jst.js';
 
