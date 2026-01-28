@@ -6,11 +6,31 @@ import { holidayDates } from './_data/holidayDates.js';
 import { createIsNationalHoliday } from './isNationalHoliday/index.js';
 import { createIsHoliday } from './isHoliday/index.js';
 import { createIsBusinessDay } from './isBusinessDay/index.js';
+import { createAddBusinessDays } from './addBusinessDays/index.js';
+import { createSubBusinessDays } from './subBusinessDays/index.js';
+import { createGetNextBusinessDay } from './getNextBusinessDay/index.js';
+import { createGetPreviousBusinessDay } from './getPreviousBusinessDay/index.js';
+import { createCountBusinessDays } from './countBusinessDays/index.js';
 import { isWeekend } from './isWeekend/index.js';
 
 const isNationalHoliday = createIsNationalHoliday(holidayDates);
 const isHoliday = createIsHoliday(holidayDates);
 const isBusinessDay = createIsBusinessDay(holidayDates);
+const addBusinessDays = createAddBusinessDays(holidayDates);
+const subBusinessDays = createSubBusinessDays(holidayDates);
+const getNextBusinessDay = createGetNextBusinessDay(holidayDates);
+const getPreviousBusinessDay = createGetPreviousBusinessDay(holidayDates);
+const countBusinessDays = createCountBusinessDays(holidayDates);
 
-export { isNationalHoliday, isWeekend, isHoliday, isBusinessDay };
+export {
+  isNationalHoliday,
+  isWeekend,
+  isHoliday,
+  isBusinessDay,
+  addBusinessDays,
+  subBusinessDays,
+  getNextBusinessDay,
+  getPreviousBusinessDay,
+  countBusinessDays,
+};
 export type { DateInput } from './types.js';

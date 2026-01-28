@@ -5,6 +5,11 @@ import {
   isWeekend,
   isHoliday,
   isBusinessDay,
+  addBusinessDays,
+  subBusinessDays,
+  getNextBusinessDay,
+  getPreviousBusinessDay,
+  countBusinessDays,
   getHolidayName,
   getHolidaysInRange,
 } from './full.ts';
@@ -117,5 +122,69 @@ describe('full: getHolidaysInRange', () => {
     );
     assert.ok(holidays.length > 0);
     assert.strictEqual(holidays[0].date, '2026-01-01');
+  });
+});
+
+describe('full: addBusinessDays', () => {
+  it('営業日を加算できる', () => {
+    // 2026-01-02（金）→ 1 営業日後 → 2026-01-05（月）
+    const result = addBusinessDays('2026-01-02', 1);
+    assert.strictEqual(result.getTime(), toJstDate('2026-01-05').getTime());
+  });
+
+  it('Date オブジェクトを受け付ける', () => {
+    const result = addBusinessDays(toJstDate('2026-01-02'), 1);
+    assert.strictEqual(result.getTime(), toJstDate('2026-01-05').getTime());
+  });
+});
+
+describe('full: subBusinessDays', () => {
+  it('営業日を減算できる', () => {
+    // 2026-01-05（月）→ 1 営業日前 → 2026-01-02（金）
+    const result = subBusinessDays('2026-01-05', 1);
+    assert.strictEqual(result.getTime(), toJstDate('2026-01-02').getTime());
+  });
+
+  it('Date オブジェクトを受け付ける', () => {
+    const result = subBusinessDays(toJstDate('2026-01-05'), 1);
+    assert.strictEqual(result.getTime(), toJstDate('2026-01-02').getTime());
+  });
+});
+
+describe('full: getNextBusinessDay', () => {
+  it('次の営業日を返す', () => {
+    // 2026-01-02（金）→ 2026-01-05（月）
+    const result = getNextBusinessDay('2026-01-02');
+    assert.strictEqual(result.getTime(), toJstDate('2026-01-05').getTime());
+  });
+
+  it('Date オブジェクトを受け付ける', () => {
+    const result = getNextBusinessDay(toJstDate('2026-01-02'));
+    assert.strictEqual(result.getTime(), toJstDate('2026-01-05').getTime());
+  });
+});
+
+describe('full: getPreviousBusinessDay', () => {
+  it('前の営業日を返す', () => {
+    // 2026-01-05（月）→ 2026-01-02（金）
+    const result = getPreviousBusinessDay('2026-01-05');
+    assert.strictEqual(result.getTime(), toJstDate('2026-01-02').getTime());
+  });
+
+  it('Date オブジェクトを受け付ける', () => {
+    const result = getPreviousBusinessDay(toJstDate('2026-01-05'));
+    assert.strictEqual(result.getTime(), toJstDate('2026-01-02').getTime());
+  });
+});
+
+describe('full: countBusinessDays', () => {
+  it('営業日数をカウントする', () => {
+    // 2026-01-05（月）〜 2026-01-09（金）= 5 営業日
+    assert.strictEqual(countBusinessDays('2026-01-05', '2026-01-09'), 5);
+  });
+
+  it('Date オブジェクトを受け付ける', () => {
+    const result = countBusinessDays(toJstDate('2026-01-05'), toJstDate('2026-01-09'));
+    assert.strictEqual(result, 5);
   });
 });
