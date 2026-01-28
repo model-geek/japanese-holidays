@@ -19,6 +19,9 @@ import { toJstDate } from '../_internal/jst.js';
 export function createGetPreviousBusinessDay(holidayDates: DateLookup) {
   const isBusinessDay = createIsBusinessDay(holidayDates);
 
+  const findPrev = (current: Date): Date =>
+    isBusinessDay(current) ? current : findPrev(addDays(current, -1));
+
   /**
    * 前の営業日を返す（当日が営業日でも前営業日を返す）
    *
@@ -35,12 +38,6 @@ export function createGetPreviousBusinessDay(holidayDates: DateLookup) {
    * ```
    */
   return function getPreviousBusinessDay(date: DateInput): Date {
-    let current = addDays(toJstDate(date), -1);
-
-    while (!isBusinessDay(current)) {
-      current = addDays(current, -1);
-    }
-
-    return current;
+    return findPrev(addDays(toJstDate(date), -1));
   };
 }

@@ -19,6 +19,12 @@ import { toJstDate } from '../_internal/jst.js';
 export function createCountBusinessDays(holidayDates: DateLookup) {
   const isBusinessDay = createIsBusinessDay(holidayDates);
 
+  const count = (current: Date, targetTime: number, acc: number): number => {
+    if (current.getTime() > targetTime) return acc;
+    const increment = isBusinessDay(current) ? 1 : 0;
+    return count(addDays(current, 1), targetTime, acc + increment);
+  };
+
   /**
    * 2つの日付間の営業日数をカウントする
    *
@@ -41,7 +47,6 @@ export function createCountBusinessDays(holidayDates: DateLookup) {
   return function countBusinessDays(start: DateInput, end: DateInput): number {
     const startDate = toJstDate(start);
     const endDate = toJstDate(end);
-
     const startTime = startDate.getTime();
     const endTime = endDate.getTime();
 
@@ -50,19 +55,10 @@ export function createCountBusinessDays(holidayDates: DateLookup) {
     }
 
     const isReversed = startTime > endTime;
-    let current = isReversed ? endDate : startDate;
-    const target = isReversed ? startDate : endDate;
-    const targetTime = target.getTime();
+    const from = isReversed ? endDate : startDate;
+    const to = isReversed ? startDate : endDate;
+    const result = count(from, to.getTime(), 0);
 
-    let count = 0;
-
-    while (current.getTime() <= targetTime) {
-      if (isBusinessDay(current)) {
-        count++;
-      }
-      current = addDays(current, 1);
-    }
-
-    return isReversed ? -count : count;
+    return isReversed ? -result : result;
   };
 }

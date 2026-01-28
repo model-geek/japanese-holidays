@@ -19,6 +19,12 @@ import { toJstDate } from '../_internal/jst.js';
 export function createAddBusinessDays(holidayDates: DateLookup) {
   const isBusinessDay = createIsBusinessDay(holidayDates);
 
+  const advance = (current: Date, remaining: number): Date => {
+    if (remaining <= 0) return current;
+    const next = addDays(current, 1);
+    return isBusinessDay(next) ? advance(next, remaining - 1) : advance(next, remaining);
+  };
+
   /**
    * 指定した日付から n 営業日後の日付を返す
    *
@@ -36,16 +42,6 @@ export function createAddBusinessDays(holidayDates: DateLookup) {
    * ```
    */
   return function addBusinessDays(date: DateInput, days: number): Date {
-    let current = toJstDate(date);
-    let remaining = days;
-
-    while (remaining > 0) {
-      current = addDays(current, 1);
-      if (isBusinessDay(current)) {
-        remaining--;
-      }
-    }
-
-    return current;
+    return advance(toJstDate(date), days);
   };
 }
