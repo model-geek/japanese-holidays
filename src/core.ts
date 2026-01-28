@@ -1,10 +1,28 @@
-import { holidayDates } from './data/holiday-dates.ts';
 import type { DateInput } from './types.ts';
 
 /**
- * 日付を YYYY-MM-DD 形式の文字列に変換する
+ * 日付の存在確認が可能なオブジェクト
  */
-function formatDate(date: DateInput): string {
+interface DateLookup {
+  has(key: string): boolean;
+}
+
+/**
+ * 日付を YYYY-MM-DD 形式の文字列に変換する
+ *
+ * @param date - 変換する日付
+ * @returns YYYY-MM-DD 形式の文字列
+ *
+ * @example
+ * ```typescript
+ * formatDate(new Date('2025-01-01'));
+ * // => '2025-01-01'
+ *
+ * formatDate('2025-01-01');
+ * // => '2025-01-01'
+ * ```
+ */
+export function formatDate(date: DateInput): string {
   if (typeof date === 'string') {
     return date;
   }
@@ -15,8 +33,26 @@ function formatDate(date: DateInput): string {
 }
 
 /**
- * 指定した日付が祝日かどうかを判定する
+ * 祝日判定関数を生成する
+ *
+ * @param lookup - 日付の存在確認が可能なオブジェクト（Set または Map）
+ * @returns 祝日判定関数
+ *
+ * @example
+ * ```typescript
+ * const isHoliday = createIsHoliday(holidayDates);
+ * isHoliday('2025-01-01');
+ * // => true
+ * ```
  */
-export function isHoliday(date: DateInput): boolean {
-  return holidayDates.has(formatDate(date));
+export function createIsHoliday(lookup: DateLookup) {
+  /**
+   * 指定した日付が祝日かどうかを判定する
+   *
+   * @param date - 判定する日付（Date または YYYY-MM-DD 形式の文字列）
+   * @returns 祝日の場合は true
+   */
+  return function isHoliday(date: DateInput): boolean {
+    return lookup.has(formatDate(date));
+  };
 }
