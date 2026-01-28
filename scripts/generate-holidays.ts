@@ -43,3 +43,43 @@ export function parseCsv(csvText: string): Holiday[] {
       return { date: formatDate(dateStr), name };
     });
 }
+
+/**
+ * 祝日日付の JSON 文字列を生成する
+ *
+ * @param holidays - 祝日データの配列
+ * @returns JSON 文字列（日付の配列）
+ *
+ * @example
+ * ```typescript
+ * generateHolidayDatesJson([
+ *   { date: '2025-01-01', name: '元日' },
+ *   { date: '2025-01-13', name: '成人の日' },
+ * ]);
+ * // => '["2025-01-01","2025-01-13"]'
+ * ```
+ */
+export function generateHolidayDatesJson(holidays: Holiday[]): string {
+  const dates = holidays.map((h) => h.date);
+  return JSON.stringify(dates);
+}
+
+/**
+ * 祝日名マップの JSON 文字列を生成する
+ *
+ * @param holidays - 祝日データの配列
+ * @returns JSON 文字列（日付をキー、祝日名を値とするオブジェクト）
+ *
+ * @example
+ * ```typescript
+ * generateHolidayNamesJson([
+ *   { date: '2025-01-01', name: '元日' },
+ *   { date: '2025-01-13', name: '成人の日' },
+ * ]);
+ * // => '{"2025-01-01":"元日","2025-01-13":"成人の日"}'
+ * ```
+ */
+export function generateHolidayNamesJson(holidays: Holiday[]): string {
+  const names = Object.fromEntries(holidays.map((h) => [h.date, h.name]));
+  return JSON.stringify(names);
+}
