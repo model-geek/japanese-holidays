@@ -19,6 +19,14 @@ import { toJstDate } from '../_internal/jst.js';
 export function createCountBusinessDays(holidayDates: DateLookup) {
   const isBusinessDay = createIsBusinessDay(holidayDates);
 
+  /**
+   * 営業日数をカウントする再帰ヘルパー
+   *
+   * @param current - 現在の日付
+   * @param targetTime - 終了日のタイムスタンプ
+   * @param acc - 累積カウント
+   * @returns 累積された営業日数
+   */
   const count = (current: Date, targetTime: number, acc: number): number => {
     if (current.getTime() > targetTime) return acc;
     const increment = isBusinessDay(current) ? 1 : 0;

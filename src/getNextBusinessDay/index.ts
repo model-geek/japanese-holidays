@@ -19,6 +19,12 @@ import { toJstDate } from '../_internal/jst.js';
 export function createGetNextBusinessDay(holidayDates: DateLookup) {
   const isBusinessDay = createIsBusinessDay(holidayDates);
 
+  /**
+   * 営業日が見つかるまで前進する再帰ヘルパー
+   *
+   * @param current - 現在の日付
+   * @returns current が営業日ならそのまま、そうでなければ次の営業日
+   */
   const findNext = (current: Date): Date =>
     isBusinessDay(current) ? current : findNext(addDays(current, 1));
 
