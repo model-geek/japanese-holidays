@@ -11,6 +11,8 @@ import { createSubBusinessDays } from './subBusinessDays/index.js';
 import { createGetNextBusinessDay } from './getNextBusinessDay/index.js';
 import { createGetPreviousBusinessDay } from './getPreviousBusinessDay/index.js';
 import { createCountBusinessDays } from './countBusinessDays/index.js';
+import { createGetLastBusinessDayOfMonth } from './getLastBusinessDayOfMonth/index.js';
+import { createGetLastBusinessDayOfWeek } from './getLastBusinessDayOfWeek/index.js';
 import { isWeekend } from './isWeekend/index.js';
 
 const isNationalHoliday = createIsNationalHoliday(holidayDates);
@@ -21,6 +23,8 @@ const subBusinessDays = createSubBusinessDays(holidayDates);
 const getNextBusinessDay = createGetNextBusinessDay(holidayDates);
 const getPreviousBusinessDay = createGetPreviousBusinessDay(holidayDates);
 const countBusinessDays = createCountBusinessDays(holidayDates);
+const getLastBusinessDayOfMonth = createGetLastBusinessDayOfMonth(holidayDates);
+const getLastBusinessDayOfWeek = createGetLastBusinessDayOfWeek(holidayDates);
 
 export {
   isNationalHoliday,
@@ -32,5 +36,7 @@ export {
   getNextBusinessDay,
   getPreviousBusinessDay,
   countBusinessDays,
+  getLastBusinessDayOfMonth,
+  getLastBusinessDayOfWeek,
 };
 export type { DateInput } from './types.js';
