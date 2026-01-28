@@ -1,5 +1,5 @@
-import { holidayDates } from './data/holiday-dates.js';
-import type { DateInput } from './types.js';
+import { holidayDates } from './data/holiday-dates.ts';
+import type { DateInput } from './types.ts';
 
 /**
  * 日付を YYYY-MM-DD 形式の文字列に変換する

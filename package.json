@@ -29,8 +29,7 @@
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf dist",
-    "test": "node --test src/{,**/}*.test.ts",
-    "test:ci": "node --test $(find dist -name '*.test.js')",
+    "test": "node --import tsx --test $(find src -name '*.test.ts')",
     "prepublishOnly": "npm run clean && npm run build"
   },
   "engines": {
@@ -38,6 +37,7 @@
   },
   "devDependencies": {
     "@types/node": "^25.0.10",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.0"
   }
 }
