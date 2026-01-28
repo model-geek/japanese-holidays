@@ -1,6 +1,6 @@
 import type { DateInput, DateLookup } from '../types.js';
 import { createIsBusinessDay } from '../isBusinessDay/index.js';
-import { findPrev } from '../_internal/businessDayTraversal.js';
+import { findPrev } from '../_internal/dateTraversal.js';
 import { addDays } from '../_internal/addDays.js';
 import { toJstDate } from '../_internal/jst.js';
 
