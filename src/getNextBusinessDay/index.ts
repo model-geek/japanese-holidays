@@ -1,5 +1,6 @@
 import type { DateInput, DateLookup } from '../types.js';
 import { createIsBusinessDay } from '../isBusinessDay/index.js';
+import { findNext } from '../_internal/businessDayTraversal.js';
 import { addDays } from '../_internal/addDays.js';
 import { toJstDate } from '../_internal/jst.js';
 
@@ -20,15 +21,6 @@ export function createGetNextBusinessDay(holidayDates: DateLookup) {
   const isBusinessDay = createIsBusinessDay(holidayDates);
 
   /**
-   * 営業日が見つかるまで前進する再帰ヘルパー
-   *
-   * @param current - 現在の日付
-   * @returns current が営業日ならそのまま、そうでなければ次の営業日
-   */
-  const findNext = (current: Date): Date =>
-    isBusinessDay(current) ? current : findNext(addDays(current, 1));
-
-  /**
    * 次の営業日を返す（当日が営業日でも翌営業日を返す）
    *
    * @param date - 基準日（Date または YYYY-MM-DD 形式の文字列）
@@ -44,6 +36,6 @@ export function createGetNextBusinessDay(holidayDates: DateLookup) {
    * ```
    */
   return function getNextBusinessDay(date: DateInput): Date {
-    return findNext(addDays(toJstDate(date), 1));
+    return findNext(addDays(toJstDate(date), 1), isBusinessDay);
   };
 }

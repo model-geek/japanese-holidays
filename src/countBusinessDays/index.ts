@@ -1,6 +1,6 @@
 import type { DateInput, DateLookup } from '../types.js';
 import { createIsBusinessDay } from '../isBusinessDay/index.js';
-import { addDays } from '../_internal/addDays.js';
+import { count } from '../_internal/businessDayTraversal.js';
 import { toJstDate } from '../_internal/jst.js';
 
 /**
@@ -18,20 +18,6 @@ import { toJstDate } from '../_internal/jst.js';
  */
 export function createCountBusinessDays(holidayDates: DateLookup) {
   const isBusinessDay = createIsBusinessDay(holidayDates);
-
-  /**
-   * 営業日数をカウントする再帰ヘルパー
-   *
-   * @param current - 現在の日付
-   * @param targetTime - 終了日のタイムスタンプ
-   * @param acc - 累積カウント
-   * @returns 累積された営業日数
-   */
-  const count = (current: Date, targetTime: number, acc: number): number => {
-    if (current.getTime() > targetTime) return acc;
-    const increment = isBusinessDay(current) ? 1 : 0;
-    return count(addDays(current, 1), targetTime, acc + increment);
-  };
 
   /**
    * 2つの日付間の営業日数をカウントする
@@ -65,7 +51,7 @@ export function createCountBusinessDays(holidayDates: DateLookup) {
     const isReversed = startTime > endTime;
     const from = isReversed ? endDate : startDate;
     const to = isReversed ? startDate : endDate;
-    const result = count(from, to.getTime(), 0);
+    const result = count(from, to.getTime(), isBusinessDay, 0);
 
     return isReversed ? -result : result;
   };

@@ -1,6 +1,6 @@
 import type { DateInput, DateLookup } from '../types.js';
 import { createIsBusinessDay } from '../isBusinessDay/index.js';
-import { addDays } from '../_internal/addDays.js';
+import { rewind } from '../_internal/businessDayTraversal.js';
 import { toJstDate } from '../_internal/jst.js';
 
 /**
@@ -20,19 +20,6 @@ export function createSubBusinessDays(holidayDates: DateLookup) {
   const isBusinessDay = createIsBusinessDay(holidayDates);
 
   /**
-   * 指定した営業日数だけ後退する再帰ヘルパー
-   *
-   * @param current - 現在の日付
-   * @param remaining - 残りの営業日数
-   * @returns remaining 営業日前の日付
-   */
-  const rewind = (current: Date, remaining: number): Date => {
-    if (remaining <= 0) return current;
-    const prev = addDays(current, -1);
-    return isBusinessDay(prev) ? rewind(prev, remaining - 1) : rewind(prev, remaining);
-  };
-
-  /**
    * 指定した日付から n 営業日前の日付を返す
    *
    * @param date - 基準日（Date または YYYY-MM-DD 形式の文字列）
@@ -49,6 +36,6 @@ export function createSubBusinessDays(holidayDates: DateLookup) {
    * ```
    */
   return function subBusinessDays(date: DateInput, days: number): Date {
-    return rewind(toJstDate(date), days);
+    return rewind(toJstDate(date), days, isBusinessDay);
   };
 }
