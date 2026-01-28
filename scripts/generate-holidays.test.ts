@@ -5,8 +5,8 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import {
   parseCsv,
-  generateHolidayDatesJson,
-  generateHolidayNamesJson,
+  generateHolidayDatesTs,
+  generateHolidayNamesTs,
   fetchCsv,
 } from './generate-holidays.ts';
 
@@ -68,53 +68,63 @@ describe('parseCsv', () => {
   });
 });
 
-describe('generateHolidayDatesJson', () => {
-  it('空配列の場合は空の JSON 配列を返す', () => {
-    const result = generateHolidayDatesJson([]);
-    assert.strictEqual(result, '[]');
+describe('generateHolidayDatesTs', () => {
+  it('空配列の場合は空の dates を持つ TypeScript を生成する', () => {
+    const result = generateHolidayDatesTs([]);
+    assert.ok(result.includes('const dates: string[] = []'));
   });
 
-  it('単一要素の配列で正しい JSON を生成する', () => {
-    const result = generateHolidayDatesJson([{ date: '2025-01-01', name: '元日' }]);
-    assert.strictEqual(result, '["2025-01-01"]');
+  it('単一要素の配列で正しい TypeScript を生成する', () => {
+    const result = generateHolidayDatesTs([{ date: '2025-01-01', name: '元日' }]);
+    assert.ok(result.includes('["2025-01-01"]'));
   });
 
-  it('複数要素の配列で正しい JSON を生成する', () => {
-    const result = generateHolidayDatesJson([
+  it('複数要素の配列で正しい TypeScript を生成する', () => {
+    const result = generateHolidayDatesTs([
       { date: '2025-01-01', name: '元日' },
       { date: '2025-01-13', name: '成人の日' },
     ]);
-    assert.strictEqual(result, '["2025-01-01","2025-01-13"]');
+    assert.ok(result.includes('["2025-01-01","2025-01-13"]'));
   });
 
-  it('生成された文字列が有効な JSON である', () => {
-    const result = generateHolidayDatesJson([{ date: '2025-01-01', name: '元日' }]);
-    assert.doesNotThrow(() => JSON.parse(result));
+  it('TSDoc コメントを含む', () => {
+    const result = generateHolidayDatesTs([]);
+    assert.ok(result.includes('祝日の日付セット'));
+  });
+
+  it('new Set(dates) を含む', () => {
+    const result = generateHolidayDatesTs([]);
+    assert.ok(result.includes('new Set(dates)'));
   });
 });
 
-describe('generateHolidayNamesJson', () => {
-  it('空配列の場合は空の JSON オブジェクトを返す', () => {
-    const result = generateHolidayNamesJson([]);
-    assert.strictEqual(result, '{}');
+describe('generateHolidayNamesTs', () => {
+  it('空配列の場合は空の entries を持つ TypeScript を生成する', () => {
+    const result = generateHolidayNamesTs([]);
+    assert.ok(result.includes('const entries: [string, string][] = []'));
   });
 
-  it('単一要素の配列で正しい JSON を生成する', () => {
-    const result = generateHolidayNamesJson([{ date: '2025-01-01', name: '元日' }]);
-    assert.strictEqual(result, '{"2025-01-01":"元日"}');
+  it('単一要素の配列で正しい TypeScript を生成する', () => {
+    const result = generateHolidayNamesTs([{ date: '2025-01-01', name: '元日' }]);
+    assert.ok(result.includes('["2025-01-01","元日"]'));
   });
 
-  it('複数要素の配列で正しい JSON を生成する', () => {
-    const result = generateHolidayNamesJson([
+  it('複数要素の配列で正しい TypeScript を生成する', () => {
+    const result = generateHolidayNamesTs([
       { date: '2025-01-01', name: '元日' },
       { date: '2025-01-13', name: '成人の日' },
     ]);
-    assert.strictEqual(result, '{"2025-01-01":"元日","2025-01-13":"成人の日"}');
+    assert.ok(result.includes('["2025-01-01","元日"],["2025-01-13","成人の日"]'));
   });
 
-  it('生成された文字列が有効な JSON である', () => {
-    const result = generateHolidayNamesJson([{ date: '2025-01-01', name: '元日' }]);
-    assert.doesNotThrow(() => JSON.parse(result));
+  it('TSDoc コメントを含む', () => {
+    const result = generateHolidayNamesTs([]);
+    assert.ok(result.includes('祝日の日付と名前のマップ'));
+  });
+
+  it('new Map(entries) を含む', () => {
+    const result = generateHolidayNamesTs([]);
+    assert.ok(result.includes('new Map(entries)'));
   });
 });
 

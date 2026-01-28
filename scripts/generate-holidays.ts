@@ -53,43 +53,75 @@ export function parseCsv(csvText: string): Holiday[] {
 }
 
 /**
- * 祝日日付の JSON 文字列を生成する
+ * 祝日日付の TypeScript ファイル内容を生成する
  *
  * @param holidays - 祝日データの配列
- * @returns JSON 文字列（日付の配列）
+ * @returns TypeScript ファイルの内容
  *
  * @example
  * ```typescript
- * generateHolidayDatesJson([
+ * generateHolidayDatesTs([
  *   { date: '2025-01-01', name: '元日' },
  *   { date: '2025-01-13', name: '成人の日' },
  * ]);
- * // => '["2025-01-01","2025-01-13"]'
+ * // => 'const dates: string[] = ["2025-01-01","2025-01-13"];\n\nexport const holidayDates...'
  * ```
  */
-export function generateHolidayDatesJson(holidays: Holiday[]): string {
-  const dates = holidays.map((h) => h.date);
-  return JSON.stringify(dates);
+export function generateHolidayDatesTs(holidays: Holiday[]): string {
+  const dates = holidays.map((h) => JSON.stringify(h.date));
+  return `/**
+ * このファイルは自動生成されるため、直接編集しないこと
+ * 再生成: npm run generate
+ * @packageDocumentation
+ */
+
+/**
+ * 祝日の日付配列（YYYY-MM-DD 形式）
+ */
+const dates: string[] = [${dates.join(',')}];
+
+/**
+ * 祝日の日付セット（light エントリポイント用）
+ * 日付は JST の YYYY-MM-DD 形式
+ */
+export const holidayDates: ReadonlySet<string> = new Set(dates);
+`;
 }
 
 /**
- * 祝日名マップの JSON 文字列を生成する
+ * 祝日名マップの TypeScript ファイル内容を生成する
  *
  * @param holidays - 祝日データの配列
- * @returns JSON 文字列（日付をキー、祝日名を値とするオブジェクト）
+ * @returns TypeScript ファイルの内容
  *
  * @example
  * ```typescript
- * generateHolidayNamesJson([
+ * generateHolidayNamesTs([
  *   { date: '2025-01-01', name: '元日' },
  *   { date: '2025-01-13', name: '成人の日' },
  * ]);
- * // => '{"2025-01-01":"元日","2025-01-13":"成人の日"}'
+ * // => 'const entries: [string, string][] = [["2025-01-01","元日"],...];\n\nexport const holidayNames...'
  * ```
  */
-export function generateHolidayNamesJson(holidays: Holiday[]): string {
-  const names = Object.fromEntries(holidays.map((h) => [h.date, h.name]));
-  return JSON.stringify(names);
+export function generateHolidayNamesTs(holidays: Holiday[]): string {
+  const entries = holidays.map((h) => `[${JSON.stringify(h.date)},${JSON.stringify(h.name)}]`);
+  return `/**
+ * このファイルは自動生成されるため、直接編集しないこと
+ * 再生成: npm run generate
+ * @packageDocumentation
+ */
+
+/**
+ * 祝日の日付と名前のペア配列（[YYYY-MM-DD, 祝日名] 形式）
+ */
+const entries: [string, string][] = [${entries.join(',')}];
+
+/**
+ * 祝日の日付と名前のマップ（full エントリポイント用）
+ * 日付は JST の YYYY-MM-DD 形式
+ */
+export const holidayNames: ReadonlyMap<string, string> = new Map(entries);
+`;
 }
 
 /**
@@ -116,11 +148,11 @@ export async function fetchCsv(url: string): Promise<string> {
 }
 
 /**
- * 内閣府 CSV から祝日データを取得し、JSON ファイルを生成する
+ * 内閣府 CSV から祝日データを取得し、TypeScript ファイルを生成する
  *
  * 以下のファイルを出力する:
- * - `src/data/holiday-dates.json` — 祝日日付の配列
- * - `src/data/holiday-names.json` — 日付をキー、祝日名を値とするオブジェクト
+ * - `src/data/holiday-dates.ts` — 祝日日付の Set
+ * - `src/data/holiday-names.ts` — 日付をキー、祝日名を値とする Map
  */
 async function generate(): Promise<void> {
   console.log('Fetching CSV from', CSV_URL);
@@ -133,15 +165,15 @@ async function generate(): Promise<void> {
   const __dirname = dirname(fileURLToPath(import.meta.url));
   const dataDir = join(__dirname, '..', 'src', 'data');
 
-  const datesJson = generateHolidayDatesJson(holidays);
-  const namesJson = generateHolidayNamesJson(holidays);
+  const datesTs = generateHolidayDatesTs(holidays);
+  const namesTs = generateHolidayNamesTs(holidays);
 
-  await writeFile(join(dataDir, 'holiday-dates.json'), datesJson);
-  await writeFile(join(dataDir, 'holiday-names.json'), namesJson);
+  await writeFile(join(dataDir, 'holiday-dates.ts'), datesTs);
+  await writeFile(join(dataDir, 'holiday-names.ts'), namesTs);
 
   console.log('Generated:');
-  console.log('  - src/data/holiday-dates.json');
-  console.log('  - src/data/holiday-names.json');
+  console.log('  - src/data/holiday-dates.ts');
+  console.log('  - src/data/holiday-names.ts');
 }
 
 // 直接実行された場合のみ generate() を呼ぶ
