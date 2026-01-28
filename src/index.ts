@@ -4,8 +4,11 @@
  */
 import { holidayDates } from './_data/holidayDates.js';
 import { createIsNationalHoliday } from './isNationalHoliday/index.js';
+import { createIsHoliday } from './isHoliday/index.js';
 import { isWeekend } from './isWeekend/index.js';
 
-export const isNationalHoliday = createIsNationalHoliday(holidayDates);
-export { isWeekend };
-export type { DateInput } from './_internal/types.js';
+const isNationalHoliday = createIsNationalHoliday(holidayDates);
+const isHoliday = createIsHoliday(holidayDates);
+
+export { isNationalHoliday, isWeekend, isHoliday };
+export type { DateInput } from './types.js';

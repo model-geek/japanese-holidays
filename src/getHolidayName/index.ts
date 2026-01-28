@@ -1,4 +1,4 @@
-import type { DateInput } from '../_internal/types.js';
+import type { DateInput, HolidayNameLookup } from '../types.js';
 import { formatDate } from '../_internal/formatDate.js';
 
 /**
@@ -14,9 +14,7 @@ import { formatDate } from '../_internal/formatDate.js';
  * // => '元日'
  * ```
  */
-export function createGetHolidayName(
-  holidayNames: ReadonlyMap<string, string>
-) {
+export function createGetHolidayName(holidayNames: HolidayNameLookup) {
   /**
    * 指定した日付の祝日名を返す
    *

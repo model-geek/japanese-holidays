@@ -4,10 +4,15 @@
  */
 import { holidayNames } from './_data/holidayNames.js';
 import { createIsNationalHoliday } from './isNationalHoliday/index.js';
+import { createIsHoliday } from './isHoliday/index.js';
 import { createGetHolidayName } from './getHolidayName/index.js';
+import { createGetHolidaysInRange } from './getHolidaysInRange/index.js';
 import { isWeekend } from './isWeekend/index.js';
 
-export const isNationalHoliday = createIsNationalHoliday(holidayNames);
-export const getHolidayName = createGetHolidayName(holidayNames);
-export { isWeekend };
-export type { DateInput } from './_internal/types.js';
+const isNationalHoliday = createIsNationalHoliday(holidayNames);
+const isHoliday = createIsHoliday(holidayNames);
+const getHolidayName = createGetHolidayName(holidayNames);
+const getHolidaysInRange = createGetHolidaysInRange(holidayNames);
+
+export { isNationalHoliday, isWeekend, isHoliday, getHolidayName, getHolidaysInRange };
+export type { DateInput, Holiday } from './types.js';
