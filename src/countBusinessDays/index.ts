@@ -51,7 +51,7 @@ export function createCountBusinessDays(holidayDates: DateLookup) {
     const isReversed = startTime > endTime;
     const from = isReversed ? endDate : startDate;
     const to = isReversed ? startDate : endDate;
-    const result = count(from, to.getTime(), isBusinessDay, 0);
+    const result = count(from, to, isBusinessDay, 0);
 
     return isReversed ? -result : result;
   };

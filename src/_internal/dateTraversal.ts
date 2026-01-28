@@ -69,18 +69,18 @@ export const rewind = (
  * 範囲内で条件を満たす日付をカウントする
  *
  * @param current - 現在の日付
- * @param targetTime - 終了日のタイムスタンプ
+ * @param target - 終了日
  * @param predicate - カウント対象かを判定する関数
  * @param acc - 累積カウント
  * @returns 条件を満たす日付の総数
  */
 export const count = (
   current: Date,
-  targetTime: number,
+  target: Date,
   predicate: DatePredicate,
   acc: number = 0
 ): number => {
-  if (current.getTime() > targetTime) return acc;
+  if (current.getTime() > target.getTime()) return acc;
   const increment = predicate(current) ? 1 : 0;
-  return count(addDays(current, 1), targetTime, predicate, acc + increment);
+  return count(addDays(current, 1), target, predicate, acc + increment);
 };
