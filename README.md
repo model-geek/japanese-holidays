@@ -1,5 +1,7 @@
 # japanese-holidays
 
+[![Node.js](https://img.shields.io/badge/Node.js-%3E%3D20-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+
 日本の祝日を扱うための TypeScript ライブラリです。
 
 ## 特徴
