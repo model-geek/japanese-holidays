@@ -19,10 +19,12 @@
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf dist",
+    "test": "node --test 'src/**/*.test.ts'",
+    "test:ci": "node --test 'dist/**/*.test.js'",
     "prepublishOnly": "npm run clean && npm run build"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   },
   "devDependencies": {
     "typescript": "^5.9.0"
