@@ -1,11 +1,9 @@
 /**
- * full エントリポイント
- * 祝日判定と祝日名の取得が可能。
+ * デフォルトエントリポイント
+ * 祝日判定のみ。祝日名のデータを含まない。
  */
-import { createIsHoliday } from './core.ts';
-import { holidayNames } from './data/holiday-names.ts';
+import { createIsHoliday } from './_internal/createIsHoliday.js';
+import { holidayDates } from './_data/holidayDates.js';
 
-export const isHoliday = createIsHoliday(holidayNames);
-export type { DateInput } from './types.ts';
-
-// 祝日名取得関数は #9 で実装する
+export const isHoliday = createIsHoliday(holidayDates);
+export type { DateInput } from './_internal/types.js';

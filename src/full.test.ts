@@ -1,8 +1,8 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { isHoliday } from './light.ts';
+import { isHoliday } from './full.ts';
 
-describe('light: isHoliday', () => {
+describe('full: isHoliday', () => {
   it('祝日の場合 true を返す', () => {
     assert.strictEqual(isHoliday('2026-01-01'), true);
   });

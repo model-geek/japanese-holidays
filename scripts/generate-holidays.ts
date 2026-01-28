@@ -81,7 +81,7 @@ export function generateHolidayDatesTs(holidays: Holiday[]): string {
 const dates: string[] = [${dates.join(',')}];
 
 /**
- * 祝日の日付セット（light エントリポイント用）
+ * 祝日の日付セット（デフォルトエントリポイント用）
  * 日付は JST の YYYY-MM-DD 形式
  */
 export const holidayDates: ReadonlySet<string> = new Set(dates);
@@ -151,8 +151,8 @@ export async function fetchCsv(url: string): Promise<string> {
  * 内閣府 CSV から祝日データを取得し、TypeScript ファイルを生成する
  *
  * 以下のファイルを出力する:
- * - `src/data/holiday-dates.ts` — 祝日日付の Set
- * - `src/data/holiday-names.ts` — 日付をキー、祝日名を値とする Map
+ * - `src/_data/holidayDates.ts` — 祝日日付の Set
+ * - `src/_data/holidayNames.ts` — 日付をキー、祝日名を値とする Map
  */
 async function generate(): Promise<void> {
   console.log('Fetching CSV from', CSV_URL);
@@ -163,17 +163,17 @@ async function generate(): Promise<void> {
   console.log(`Parsed ${holidays.length} holidays`);
 
   const __dirname = dirname(fileURLToPath(import.meta.url));
-  const dataDir = join(__dirname, '..', 'src', 'data');
+  const dataDir = join(__dirname, '..', 'src', '_data');
 
   const datesTs = generateHolidayDatesTs(holidays);
   const namesTs = generateHolidayNamesTs(holidays);
 
-  await writeFile(join(dataDir, 'holiday-dates.ts'), datesTs);
-  await writeFile(join(dataDir, 'holiday-names.ts'), namesTs);
+  await writeFile(join(dataDir, 'holidayDates.ts'), datesTs);
+  await writeFile(join(dataDir, 'holidayNames.ts'), namesTs);
 
   console.log('Generated:');
-  console.log('  - src/data/holiday-dates.ts');
-  console.log('  - src/data/holiday-names.ts');
+  console.log('  - src/_data/holidayDates.ts');
+  console.log('  - src/_data/holidayNames.ts');
 }
 
 // 直接実行された場合のみ generate() を呼ぶ
