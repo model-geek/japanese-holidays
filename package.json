@@ -4,7 +4,13 @@
   "description": "日本の祝日を扱うための TypeScript ライブラリ",
   "type": "module",
   "license": "MIT",
-  "keywords": ["japanese", "holidays", "japan", "祝日", "typescript"],
+  "keywords": [
+    "japanese",
+    "holidays",
+    "japan",
+    "祝日",
+    "typescript"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -15,16 +21,23 @@
       "default": "./dist/light.js"
     }
   },
-  "files": ["dist", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf dist",
+    "test": "node --test src/{,**/}*.test.ts",
+    "test:ci": "node --test $(find dist -name '*.test.js')",
     "prepublishOnly": "npm run clean && npm run build"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   },
   "devDependencies": {
+    "@types/node": "^25.0.10",
     "typescript": "^5.9.0"
   }
 }
