@@ -29,7 +29,7 @@
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf dist",
-    "test": "node --test src/{,**/}*.test.ts",
+    "test": "node --test src/{,**/}*.test.ts scripts/*.test.ts",
     "test:ci": "node --test $(find dist -name '*.test.js')",
     "prepublishOnly": "npm run clean && npm run build"
   },
