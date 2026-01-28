@@ -30,7 +30,7 @@
     "build": "tsc",
     "clean": "rm -rf dist",
     "test": "node --test src/{,**/}*.test.ts",
-    "test:ci": "node --test dist/{,**/}*.test.js",
+    "test:ci": "node --test $(find dist -name '*.test.js')",
     "prepublishOnly": "npm run clean && npm run build"
   },
   "engines": {
