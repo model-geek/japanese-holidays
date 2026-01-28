@@ -1,9 +1,13 @@
-import { describe, it } from 'node:test';
+import { describe, it, mock } from 'node:test';
 import assert from 'node:assert';
+import { readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
 import {
   parseCsv,
   generateHolidayDatesJson,
   generateHolidayNamesJson,
+  fetchCsv,
 } from './generate-holidays.ts';
 
 describe('parseCsv', () => {
@@ -111,5 +115,47 @@ describe('generateHolidayNamesJson', () => {
   it('生成された文字列が有効な JSON である', () => {
     const result = generateHolidayNamesJson([{ date: '2025-01-01', name: '元日' }]);
     assert.doesNotThrow(() => JSON.parse(result));
+  });
+});
+
+describe('fetchCsv', () => {
+  it('Shift_JIS の CSV を UTF-8 に変換して返す', async () => {
+    const __dirname = dirname(fileURLToPath(import.meta.url));
+    const fixtureBuffer = await readFile(
+      join(__dirname, 'fixtures', 'syukujitsu.csv')
+    );
+
+    const mockFetch = mock.fn(() =>
+      Promise.resolve({
+        ok: true,
+        arrayBuffer: () => Promise.resolve(fixtureBuffer.buffer),
+      } as Response)
+    );
+    mock.method(globalThis, 'fetch', mockFetch);
+
+    const result = await fetchCsv('https://example.com/test.csv');
+
+    assert.ok(result.includes('元日'));
+    assert.ok(result.includes('国民の祝日'));
+
+    mock.reset();
+  });
+
+  it('HTTP エラーの場合は例外をスローする', async () => {
+    const mockFetch = mock.fn(() =>
+      Promise.resolve({
+        ok: false,
+        status: 404,
+        statusText: 'Not Found',
+      } as Response)
+    );
+    mock.method(globalThis, 'fetch', mockFetch);
+
+    await assert.rejects(
+      () => fetchCsv('https://example.com/not-found.csv'),
+      /Failed to fetch CSV: 404 Not Found/
+    );
+
+    mock.reset();
   });
 });
