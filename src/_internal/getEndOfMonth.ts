@@ -1,5 +1,5 @@
 import type { DateInput } from './types.js';
-import { toJstDate } from './toJstDate.js';
+import { getJstFullYear, getJstMonth } from './jstGetters.js';
 
 /** JST のオフセット（ミリ秒） */
 const JST_OFFSET_MS = 9 * 60 * 60 * 1000;
@@ -20,11 +20,8 @@ const JST_OFFSET_MS = 9 * 60 * 60 * 1000;
  * ```
  */
 export function getEndOfMonth(date: DateInput): Date {
-  const d = toJstDate(date);
-  // toJstDate の戻り値に 9 時間を足して UTC メソッドで年月を取得
-  const utcMidnight = new Date(d.getTime() + JST_OFFSET_MS);
-  const year = utcMidnight.getUTCFullYear();
-  const month = utcMidnight.getUTCMonth();
+  const year = getJstFullYear(date);
+  const month = getJstMonth(date);
   // 翌月の 0 日 = 当月の末日（UTC で計算し、JST に戻す）
   return new Date(Date.UTC(year, month + 1, 0) - JST_OFFSET_MS);
 }

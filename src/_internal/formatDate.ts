@@ -1,8 +1,5 @@
 import type { DateInput } from './types.js';
-import { toJstDate } from './toJstDate.js';
-
-/** JST のオフセット（ミリ秒） */
-const JST_OFFSET_MS = 9 * 60 * 60 * 1000;
+import { getJstFullYear, getJstMonth, getJstDate } from './jstGetters.js';
 
 /**
  * 日付を YYYY-MM-DD 形式の文字列に変換する
@@ -25,12 +22,8 @@ export function formatDate(date: DateInput): string {
   if (typeof date === 'string') {
     return date;
   }
-  // toJstDate は JST の 00:00:00 を表す Date を返す
-  // その Date に 9 時間を足すと UTC の 00:00:00 になる
-  const d = toJstDate(date);
-  const utcMidnight = new Date(d.getTime() + JST_OFFSET_MS);
-  const year = utcMidnight.getUTCFullYear();
-  const month = String(utcMidnight.getUTCMonth() + 1).padStart(2, '0');
-  const day = String(utcMidnight.getUTCDate()).padStart(2, '0');
+  const year = getJstFullYear(date);
+  const month = String(getJstMonth(date) + 1).padStart(2, '0');
+  const day = String(getJstDate(date)).padStart(2, '0');
   return `${year}-${month}-${day}`;
 }

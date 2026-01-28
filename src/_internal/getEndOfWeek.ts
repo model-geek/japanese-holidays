@@ -1,9 +1,6 @@
 import type { DateInput } from './types.js';
-import { toJstDate } from './toJstDate.js';
 import { addDays } from './addDays.js';
-
-/** JST のオフセット（ミリ秒） */
-const JST_OFFSET_MS = 9 * 60 * 60 * 1000;
+import { getJstDay } from './jstGetters.js';
 
 /**
  * 指定した日付の週の金曜日を返す
@@ -26,11 +23,8 @@ const JST_OFFSET_MS = 9 * 60 * 60 * 1000;
  * ```
  */
 export function getEndOfWeek(date: DateInput): Date {
-  const d = toJstDate(date);
-  // toJstDate の戻り値に 9 時間を足して UTC メソッドで曜日を取得
-  const utcMidnight = new Date(d.getTime() + JST_OFFSET_MS);
-  const day = utcMidnight.getUTCDay();
+  const day = getJstDay(date);
   // 日曜(0)→+5, 月曜(1)→+4, 火曜(2)→+3, 水曜(3)→+2, 木曜(4)→+1, 金曜(5)→0, 土曜(6)→-1
   const daysUntilFriday = day === 0 ? 5 : 5 - day;
-  return addDays(d, daysUntilFriday);
+  return addDays(date, daysUntilFriday);
 }
