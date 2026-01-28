@@ -30,8 +30,8 @@
 
 | エントリポイント | 用途 | サイズ (gzip) |
 |---|---|---|
-| `japanese-holidays/light` | 祝日の判定のみ | 約 2.5 KB |
-| `japanese-holidays` | 祝日の判定 + 祝日名の取得 | 約 3.5 KB |
+| `japanese-holidays` | 祝日の判定のみ | 約 2.5 KB |
+| `japanese-holidays/full` | 祝日の判定 + 祝日名の取得 | 約 3.5 KB |
 
 ### 高速な検索
 

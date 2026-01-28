@@ -2,7 +2,7 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert';
 import { isHoliday } from './index.ts';
 
-describe('full: isHoliday', () => {
+describe('default: isHoliday', () => {
   it('祝日の場合 true を返す', () => {
     assert.strictEqual(isHoliday('2026-01-01'), true);
   });
