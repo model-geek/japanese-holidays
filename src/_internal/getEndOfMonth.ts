@@ -1,5 +1,5 @@
 import type { DateInput } from './types.js';
-import { getJstFullYear, getJstMonth } from './jstGetters.js';
+import { getJstFullYear, getJstMonth } from './jst.js';
 
 /** JST のオフセット（ミリ秒） */
 const JST_OFFSET_MS = 9 * 60 * 60 * 1000;

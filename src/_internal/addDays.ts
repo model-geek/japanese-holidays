@@ -1,5 +1,5 @@
 import type { DateInput } from './types.js';
-import { toJstDate } from './toJstDate.js';
+import { toJstDate } from './jst.js';
 
 /**
  * 日付に n 日加算する
