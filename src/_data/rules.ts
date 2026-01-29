@@ -53,17 +53,20 @@ interface EquinoxRule {
 }
 
 /**
- * 祝日ルール
- */
-type HolidayRule = FixedHolidayRule | HappyMondayRule | EquinoxRule;
-
-/**
  * 一回限りの特別祝日
  */
-interface SpecialHoliday {
-  date: string;
+interface SpecialRule {
+  type: 'special';
+  year: number;
+  month: number;
+  day: number;
   name: string;
 }
+
+/**
+ * 祝日ルール
+ */
+type HolidayRule = FixedHolidayRule | HappyMondayRule | EquinoxRule | SpecialRule;
 
 /**
  * オリンピック特例で移動された祝日
@@ -83,7 +86,6 @@ interface YearlyChange {
   add?: HolidayRule[];
   remove?: string[];
   modify?: HolidayRule[];
-  special?: SpecialHoliday[];
   substituteHolidayStart?: { month: number; day: number };
   citizensHolidayStart?: boolean;
   olympicException?: readonly MovedHoliday[];
@@ -135,7 +137,7 @@ const YEARLY_CHANGES: readonly YearlyChange[] = [
   {
     year: 1959,
     description: '皇太子明仁親王の結婚の儀',
-    special: [{ date: '1959-04-10', name: '結婚の儀' }],
+    add: [{ type: 'special', year: 1959, month: 4, day: 10, name: '結婚の儀' }],
   },
   // ------------------------------------------------------------------------
   // 1966年: 敬老の日・体育の日の追加
@@ -178,7 +180,7 @@ const YEARLY_CHANGES: readonly YearlyChange[] = [
   {
     year: 1989,
     description: '昭和天皇崩御、天皇誕生日を12/23に変更、4/29をみどりの日に',
-    special: [{ date: '1989-02-24', name: '大喪の礼' }],
+    add: [{ type: 'special', year: 1989, month: 2, day: 24, name: '大喪の礼' }],
     modify: [
       { type: 'fixed', month: 4, day: 29, name: 'みどりの日' },
       { type: 'fixed', month: 12, day: 23, name: '天皇誕生日' },
@@ -190,7 +192,7 @@ const YEARLY_CHANGES: readonly YearlyChange[] = [
   {
     year: 1990,
     description: '即位礼正殿の儀',
-    special: [{ date: '1990-11-12', name: '即位礼正殿の儀' }],
+    add: [{ type: 'special', year: 1990, month: 11, day: 12, name: '即位礼正殿の儀' }],
   },
   // ------------------------------------------------------------------------
   // 1993年: 皇太子徳仁親王の結婚の儀
@@ -198,7 +200,7 @@ const YEARLY_CHANGES: readonly YearlyChange[] = [
   {
     year: 1993,
     description: '皇太子徳仁親王の結婚の儀',
-    special: [{ date: '1993-06-09', name: '結婚の儀' }],
+    add: [{ type: 'special', year: 1993, month: 6, day: 9, name: '結婚の儀' }],
   },
   // ------------------------------------------------------------------------
   // 1996年: 海の日の新設
@@ -253,12 +255,12 @@ const YEARLY_CHANGES: readonly YearlyChange[] = [
   {
     year: 2019,
     description: '天皇の退位・即位関連の特別祝日、天皇誕生日（12/23）廃止、体育の日名称変更準備',
-    special: [
-      { date: '2019-05-01', name: '休日（祝日扱い）' },
-      { date: '2019-10-22', name: '休日（祝日扱い）' },
-    ],
     remove: ['天皇誕生日', '体育の日'],
-    add: [{ type: 'happyMonday', month: 10, weekday: 1, n: 2, name: '体育の日（スポーツの日）' }],
+    add: [
+      { type: 'happyMonday', month: 10, weekday: 1, n: 2, name: '体育の日（スポーツの日）' },
+      { type: 'special', year: 2019, month: 5, day: 1, name: '休日（祝日扱い）' },
+      { type: 'special', year: 2019, month: 10, day: 22, name: '休日（祝日扱い）' },
+    ],
   },
   // ------------------------------------------------------------------------
   // 2020年: 新天皇誕生日、スポーツの日への改称、オリンピック特例
@@ -320,6 +322,8 @@ function computeHolidayDate(
       } else {
         return { month: 9, day: calculateAutumnalEquinox(year) };
       }
+    case 'special':
+      return rule.year === year ? { month: rule.month, day: rule.day } : null;
   }
 }
 
@@ -458,53 +462,57 @@ interface ComputedHolidays {
 }
 
 /**
+ * ルールのキーを取得（special ルールは日付ベース）
+ */
+function getRuleKey(rule: HolidayRule): string {
+  return rule.type === 'special'
+    ? formatDateStr(rule.year, rule.month, rule.day)
+    : rule.name;
+}
+
+/**
  * YEARLY_CHANGES から指定年の祝日を計算
  */
 function computeDefinedHolidays(year: number): ComputedHolidays {
   // 中間状態の型
   interface IntermediateState {
     rules: ReadonlyMap<string, HolidayRule>;
-    specials: readonly [string, string][];
+    olympicHolidays: readonly [string, string][];
     substituteHolidayStart: { year: number; month: number; day: number } | null;
     citizensHolidayEnabled: boolean;
   }
 
   const initialState: IntermediateState = {
     rules: new Map(),
-    specials: [],
+    olympicHolidays: [],
     substituteHolidayStart: null,
     citizensHolidayEnabled: false,
   };
 
-  const { rules, specials, substituteHolidayStart, citizensHolidayEnabled } =
+  const { rules, olympicHolidays, substituteHolidayStart, citizensHolidayEnabled } =
     YEARLY_CHANGES.filter((change) => change.year <= year).reduce(
       (state, change): IntermediateState => {
         // ルールの追加・削除・変更
         const rules = new Map(state.rules);
         for (const rule of change.add ?? []) {
-          rules.set(rule.name, rule);
+          rules.set(getRuleKey(rule), rule);
         }
         for (const name of change.remove ?? []) {
           rules.delete(name);
         }
         for (const rule of change.modify ?? []) {
-          rules.set(rule.name, rule);
+          rules.set(getRuleKey(rule), rule);
         }
 
-        // オリンピック特例（その年のみ）→ 該当ルールを削除して specials に追加
+        // オリンピック特例（その年のみ）→ 移動対象のルールを削除
         if (change.year === year && change.olympicException) {
           for (const moved of change.olympicException) {
             rules.delete(moved.name);
           }
         }
 
-        // 特別祝日（その年のものだけ）
-        const specialHolidays: [string, string][] = (change.special ?? [])
-          .filter((s) => s.date.startsWith(`${year}-`))
-          .map((s): [string, string] => [s.date, s.name]);
-
         // オリンピック特例で移動された祝日
-        const olympicHolidays: [string, string][] =
+        const newOlympicHolidays: [string, string][] =
           change.year === year && change.olympicException
             ? change.olympicException.map(
                 (m): [string, string] => [formatDateStr(year, m.month, m.day), m.name]
@@ -525,7 +533,7 @@ function computeDefinedHolidays(year: number): ComputedHolidays {
 
         return {
           rules,
-          specials: [...state.specials, ...specialHolidays, ...olympicHolidays],
+          olympicHolidays: [...state.olympicHolidays, ...newOlympicHolidays],
           substituteHolidayStart,
           citizensHolidayEnabled,
         };
@@ -542,7 +550,7 @@ function computeDefinedHolidays(year: number): ComputedHolidays {
     .filter((entry): entry is [string, string] => entry !== null);
 
   return {
-    definedHolidays: [...specials, ...ruleBasedHolidays],
+    definedHolidays: [...olympicHolidays, ...ruleBasedHolidays],
     substituteHolidayStart,
     citizensHolidayEnabled,
   };
