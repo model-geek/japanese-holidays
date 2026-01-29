@@ -128,3 +128,42 @@ export function getJstDate(date: DateInput): number {
 export function getJstDay(date: DateInput): number {
   return toJstUtcMidnight(date).getUTCDay();
 }
+
+/**
+ * 指定した月の第 n 週目の特定曜日の日付を取得する
+ *
+ * @param year - 年
+ * @param month - 月（1-12）
+ * @param weekday - 曜日（0: 日曜, 1: 月曜, ..., 6: 土曜）
+ * @param n - 第何週目か（1-5）
+ * @returns 日付（1-31）
+ *
+ * @example
+ * ```typescript
+ * // 2025年1月の第2月曜日
+ * getNthWeekday(2025, 1, 1, 2);
+ * // => 13
+ *
+ * // 2025年7月の第3月曜日
+ * getNthWeekday(2025, 7, 1, 3);
+ * // => 21
+ * ```
+ */
+export function getNthWeekday(
+  year: number,
+  month: number,
+  weekday: number,
+  n: number
+): number {
+  const firstDay = createJstDate(year, month - 1, 1);
+  const firstWeekday = getJstDay(firstDay);
+
+  // 最初の該当曜日までの日数
+  let daysUntilFirst = weekday - firstWeekday;
+  if (daysUntilFirst < 0) {
+    daysUntilFirst += 7;
+  }
+
+  // 第 n 週目の該当曜日
+  return 1 + daysUntilFirst + (n - 1) * 7;
+}

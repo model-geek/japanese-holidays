@@ -5,8 +5,13 @@ import {
   getJstDate,
   getJstDay,
   createJstDate,
+  getNthWeekday,
 } from '../_internal/jst.ts';
 import { addDays } from '../_internal/addDays.ts';
+import {
+  calculateVernalEquinox,
+  calculateAutumnalEquinox,
+} from '../_internal/equinox.ts';
 import {
   SPECIAL_HOLIDAYS,
   HOLIDAY_LAW_START_YEAR,
@@ -17,74 +22,6 @@ import {
   FIXED_HOLIDAY_DATES,
   HAPPY_MONDAY_RULES,
 } from '../_data/rules.ts';
-
-/**
- * 指定した月の第 n 週目の特定曜日の日付を取得する
- *
- * @param year - 年
- * @param month - 月（1-12）
- * @param weekday - 曜日（0: 日曜, 1: 月曜, ..., 6: 土曜）
- * @param n - 第何週目か（1-5）
- * @returns 日付（1-31）
- */
-function getNthWeekday(
-  year: number,
-  month: number,
-  weekday: number,
-  n: number
-): number {
-  const firstDay = createJstDate(year, month - 1, 1);
-  const firstWeekday = getJstDay(firstDay);
-
-  // 最初の該当曜日までの日数
-  let daysUntilFirst = weekday - firstWeekday;
-  if (daysUntilFirst < 0) {
-    daysUntilFirst += 7;
-  }
-
-  // 第 n 週目の該当曜日
-  return 1 + daysUntilFirst + (n - 1) * 7;
-}
-
-/**
- * 春分日を計算する
- *
- * @param year - 年
- * @returns 春分日（3月の日付）
- *
- * @see https://www.nao.ac.jp/faq/a0301.html
- */
-function calculateVernalEquinox(year: number): number {
-  if (year < 1900 || year > 2099) {
-    // 計算式の適用範囲外
-    return 21;
-  }
-
-  if (year <= 1979) {
-    return Math.floor(20.8357 + 0.242194 * (year - 1980) - Math.floor((year - 1980) / 4));
-  }
-  return Math.floor(20.8431 + 0.242194 * (year - 1980) - Math.floor((year - 1980) / 4));
-}
-
-/**
- * 秋分日を計算する
- *
- * @param year - 年
- * @returns 秋分日（9月の日付）
- *
- * @see https://www.nao.ac.jp/faq/a0301.html
- */
-function calculateAutumnalEquinox(year: number): number {
-  if (year < 1900 || year > 2099) {
-    // 計算式の適用範囲外
-    return 23;
-  }
-
-  if (year <= 1979) {
-    return Math.floor(23.2588 + 0.242194 * (year - 1980) - Math.floor((year - 1980) / 4));
-  }
-  return Math.floor(23.2488 + 0.242194 * (year - 1980) - Math.floor((year - 1980) / 4));
-}
 
 /**
  * 指定した日付の「国民の祝日」名（振替休日・国民の休日を除く）を返す
