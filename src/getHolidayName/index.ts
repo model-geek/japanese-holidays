@@ -7,18 +7,16 @@ import {
   createJstDate,
 } from '../_internal/jst.ts';
 import { addDays } from '../_internal/addDays.ts';
-
-/**
- * 特別な一回限りの祝日
- */
-const SPECIAL_HOLIDAYS: ReadonlyMap<string, string> = new Map([
-  ['1959-04-10', '結婚の儀'],
-  ['1989-02-24', '大喪の礼'],
-  ['1990-11-12', '即位礼正殿の儀'],
-  ['1993-06-09', '結婚の儀'],
-  ['2019-05-01', '休日（祝日扱い）'],
-  ['2019-10-22', '休日（祝日扱い）'],
-]);
+import {
+  SPECIAL_HOLIDAYS,
+  HOLIDAY_LAW_START_YEAR,
+  SUBSTITUTE_HOLIDAY_START,
+  CITIZENS_HOLIDAY_START_YEAR,
+  HOLIDAY_START_YEARS,
+  OLYMPIC_SPECIAL_YEARS,
+  FIXED_HOLIDAY_DATES,
+  HAPPY_MONDAY_RULES,
+} from '../_data/rules.ts';
 
 /**
  * 指定した月の第 n 週目の特定曜日の日付を取得する
@@ -99,117 +97,175 @@ function getDefinedHolidayName(year: number, month: number, day: number): string
     return specialHoliday;
   }
 
+  // オリンピック特例年の処理
+  const olympicRules = OLYMPIC_SPECIAL_YEARS.get(year);
+  if (olympicRules) {
+    if (month === olympicRules.marineDay[0] && day === olympicRules.marineDay[1]) return '海の日';
+    if (month === olympicRules.sportsDay[0] && day === olympicRules.sportsDay[1]) return 'スポーツの日';
+    if (month === olympicRules.mountainDay[0] && day === olympicRules.mountainDay[1]) return '山の日';
+  }
+
   switch (month) {
     case 1:
       // 元日: 1月1日
-      if (day === 1 && year >= 1949) return '元日';
+      if (
+        day === FIXED_HOLIDAY_DATES.newYearsDay.day &&
+        year >= HOLIDAY_START_YEARS.newYearsDay
+      ) {
+        return '元日';
+      }
       // 成人の日: 1月15日 (1949-1999), 第2月曜 (2000-)
-      if (year >= 2000) {
-        if (day === getNthWeekday(year, 1, 1, 2)) return '成人の日';
-      } else if (year >= 1949) {
-        if (day === 15) return '成人の日';
+      if (year >= HOLIDAY_START_YEARS.comingOfAgeDayHappyMonday) {
+        const rule = HAPPY_MONDAY_RULES.comingOfAgeDay;
+        if (day === getNthWeekday(year, rule.month, rule.weekday, rule.n)) return '成人の日';
+      } else if (year >= HOLIDAY_START_YEARS.comingOfAgeDay) {
+        if (day === FIXED_HOLIDAY_DATES.comingOfAgeDayFixed.day) return '成人の日';
       }
       break;
 
     case 2:
       // 建国記念の日: 2月11日 (1967-)
-      if (day === 11 && year >= 1967) return '建国記念の日';
+      if (
+        day === FIXED_HOLIDAY_DATES.nationalFoundationDay.day &&
+        year >= HOLIDAY_START_YEARS.nationalFoundationDay
+      ) {
+        return '建国記念の日';
+      }
       // 天皇誕生日: 2月23日 (2020-)
-      if (day === 23 && year >= 2020) return '天皇誕生日';
+      if (
+        day === FIXED_HOLIDAY_DATES.emperorsBirthdayReiwa.day &&
+        year >= HOLIDAY_START_YEARS.emperorsBirthdayReiwa
+      ) {
+        return '天皇誕生日';
+      }
       break;
 
     case 3:
       // 春分の日
-      if (day === calculateVernalEquinox(year) && year >= 1949) return '春分の日';
+      if (day === calculateVernalEquinox(year) && year >= HOLIDAY_START_YEARS.vernalEquinoxDay) {
+        return '春分の日';
+      }
       break;
 
     case 4:
       // 天皇誕生日: 4月29日 (1949-1988)
       // みどりの日: 4月29日 (1989-2006)
       // 昭和の日: 4月29日 (2007-)
-      if (day === 29) {
-        if (year >= 2007) return '昭和の日';
-        if (year >= 1989) return 'みどりの日';
-        if (year >= 1949) return '天皇誕生日';
+      if (day === FIXED_HOLIDAY_DATES.showaDay.day) {
+        if (year >= HOLIDAY_START_YEARS.showaDay) return '昭和の日';
+        if (year >= HOLIDAY_START_YEARS.greenDayApril) return 'みどりの日';
+        if (year >= HOLIDAY_START_YEARS.emperorsBirthdayShowa) return '天皇誕生日';
       }
       break;
 
     case 5:
       // 憲法記念日: 5月3日
-      if (day === 3 && year >= 1949) return '憲法記念日';
+      if (
+        day === FIXED_HOLIDAY_DATES.constitutionDay.day &&
+        year >= HOLIDAY_START_YEARS.constitutionDay
+      ) {
+        return '憲法記念日';
+      }
       // みどりの日: 5月4日 (2007-)
       // 1986-2006 は国民の休日として扱われる
-      if (day === 4 && year >= 2007) return 'みどりの日';
+      if (
+        day === FIXED_HOLIDAY_DATES.greenDay.day &&
+        year >= HOLIDAY_START_YEARS.greenDayMay
+      ) {
+        return 'みどりの日';
+      }
       // こどもの日: 5月5日
-      if (day === 5 && year >= 1949) return 'こどもの日';
+      if (
+        day === FIXED_HOLIDAY_DATES.childrensDay.day &&
+        year >= HOLIDAY_START_YEARS.childrensDay
+      ) {
+        return 'こどもの日';
+      }
       break;
 
     case 7:
+      // オリンピック特例年は上で処理済み
+      if (olympicRules) break;
       // 海の日: 7月20日 (1996-2002), 第3月曜 (2003-)
-      // スポーツの日: 2020年・2021年は特例で7月に移動
-      if (year === 2020) {
-        if (day === 23) return '海の日';
-        if (day === 24) return 'スポーツの日';
-      } else if (year === 2021) {
-        if (day === 22) return '海の日';
-        if (day === 23) return 'スポーツの日';
-      } else if (year >= 2003) {
-        if (day === getNthWeekday(year, 7, 1, 3)) return '海の日';
-      } else if (year >= 1996) {
-        if (day === 20) return '海の日';
+      if (year >= HOLIDAY_START_YEARS.marineDayHappyMonday) {
+        const rule = HAPPY_MONDAY_RULES.marineDay;
+        if (day === getNthWeekday(year, rule.month, rule.weekday, rule.n)) return '海の日';
+      } else if (year >= HOLIDAY_START_YEARS.marineDay) {
+        if (day === FIXED_HOLIDAY_DATES.marineDayFixed.day) return '海の日';
       }
       break;
 
     case 8:
+      // オリンピック特例年は上で処理済み
+      if (olympicRules) break;
       // 山の日: 8月11日 (2016-)
-      // 2020年・2021年は特例で移動
-      if (year === 2020) {
-        if (day === 10) return '山の日';
-      } else if (year === 2021) {
-        if (day === 8) return '山の日';
-      } else if (year >= 2016) {
-        if (day === 11) return '山の日';
+      if (
+        day === FIXED_HOLIDAY_DATES.mountainDay.day &&
+        year >= HOLIDAY_START_YEARS.mountainDay
+      ) {
+        return '山の日';
       }
       break;
 
     case 9:
       // 敬老の日: 9月15日 (1966-2002), 第3月曜 (2003-)
-      if (year >= 2003) {
-        if (day === getNthWeekday(year, 9, 1, 3)) return '敬老の日';
-      } else if (year >= 1966) {
-        if (day === 15) return '敬老の日';
+      if (year >= HOLIDAY_START_YEARS.respectForTheAgedDayHappyMonday) {
+        const rule = HAPPY_MONDAY_RULES.respectForTheAgedDay;
+        if (day === getNthWeekday(year, rule.month, rule.weekday, rule.n)) return '敬老の日';
+      } else if (year >= HOLIDAY_START_YEARS.respectForTheAgedDay) {
+        if (day === FIXED_HOLIDAY_DATES.respectForTheAgedDayFixed.day) return '敬老の日';
       }
       // 秋分の日
-      if (day === calculateAutumnalEquinox(year) && year >= 1948) return '秋分の日';
+      if (day === calculateAutumnalEquinox(year) && year >= HOLIDAY_START_YEARS.autumnalEquinoxDay) {
+        return '秋分の日';
+      }
       break;
 
     case 10:
+      // オリンピック特例年は7月に移動済み
+      if (olympicRules) break;
       // 体育の日/スポーツの日: 10月10日 (1966-1999), 第2月曜 (2000-)
-      // 2020年・2021年は特例で7月に移動
-      if (year === 2020 || year === 2021) {
-        // 7月に移動済み
-      } else if (year >= 2020) {
-        if (day === getNthWeekday(year, 10, 1, 2)) return 'スポーツの日';
+      if (year >= HOLIDAY_START_YEARS.sportsDayRename) {
+        const rule = HAPPY_MONDAY_RULES.sportsDay;
+        if (day === getNthWeekday(year, rule.month, rule.weekday, rule.n)) return 'スポーツの日';
       } else if (year === 2019) {
         // 2019年は名称変更直前で「体育の日（スポーツの日）」と記載
-        if (day === getNthWeekday(year, 10, 1, 2)) return '体育の日（スポーツの日）';
-      } else if (year >= 2000) {
-        if (day === getNthWeekday(year, 10, 1, 2)) return '体育の日';
-      } else if (year >= 1966) {
-        if (day === 10) return '体育の日';
+        const rule = HAPPY_MONDAY_RULES.sportsDay;
+        if (day === getNthWeekday(year, rule.month, rule.weekday, rule.n)) return '体育の日（スポーツの日）';
+      } else if (year >= HOLIDAY_START_YEARS.sportsDayHappyMonday) {
+        const rule = HAPPY_MONDAY_RULES.sportsDay;
+        if (day === getNthWeekday(year, rule.month, rule.weekday, rule.n)) return '体育の日';
+      } else if (year >= HOLIDAY_START_YEARS.sportsDay) {
+        if (day === FIXED_HOLIDAY_DATES.sportsDayFixed.day) return '体育の日';
       }
       break;
 
     case 11:
       // 文化の日: 11月3日
-      if (day === 3 && year >= 1948) return '文化の日';
+      if (
+        day === FIXED_HOLIDAY_DATES.cultureDay.day &&
+        year >= HOLIDAY_START_YEARS.cultureDay
+      ) {
+        return '文化の日';
+      }
       // 勤労感謝の日: 11月23日
-      if (day === 23 && year >= 1948) return '勤労感謝の日';
+      if (
+        day === FIXED_HOLIDAY_DATES.laborThanksgivingDay.day &&
+        year >= HOLIDAY_START_YEARS.laborThanksgivingDay
+      ) {
+        return '勤労感謝の日';
+      }
       break;
 
     case 12:
       // 天皇誕生日: 12月23日 (1989-2018)
-      if (day === 23 && year >= 1989 && year <= 2018) return '天皇誕生日';
+      if (
+        day === FIXED_HOLIDAY_DATES.emperorsBirthdayHeisei.day &&
+        year >= HOLIDAY_START_YEARS.emperorsBirthdayHeiseiStart &&
+        year <= HOLIDAY_START_YEARS.emperorsBirthdayHeiseiEnd
+      ) {
+        return '天皇誕生日';
+      }
       break;
   }
 
@@ -231,8 +287,14 @@ function isDefinedHoliday(year: number, month: number, day: number): boolean {
  */
 function isSubstituteHoliday(year: number, month: number, day: number): boolean {
   // 振替休日制度は1973年4月12日施行
-  if (year < 1973) return false;
-  if (year === 1973 && (month < 4 || (month === 4 && day < 12))) return false;
+  if (year < SUBSTITUTE_HOLIDAY_START.year) return false;
+  if (
+    year === SUBSTITUTE_HOLIDAY_START.year &&
+    (month < SUBSTITUTE_HOLIDAY_START.month ||
+      (month === SUBSTITUTE_HOLIDAY_START.month && day < SUBSTITUTE_HOLIDAY_START.day))
+  ) {
+    return false;
+  }
 
   const date = createJstDate(year, month - 1, day);
   const weekday = getJstDay(date);
@@ -269,7 +331,7 @@ function isSubstituteHoliday(year: number, month: number, day: number): boolean 
  * 国民の休日: 祝日と祝日に挟まれた平日（1986年施行）
  */
 function isCitizensHoliday(year: number, month: number, day: number): boolean {
-  if (year < 1986) return false;
+  if (year < CITIZENS_HOLIDAY_START_YEAR) return false;
 
   const date = createJstDate(year, month - 1, day);
   const weekday = getJstDay(date);
@@ -325,7 +387,7 @@ export function getHolidayName(date: DateInput): string | undefined {
   const day = getJstDate(date);
 
   // 祝日法施行前（1948年以前）は祝日なし
-  if (year < 1948) return undefined;
+  if (year < HOLIDAY_LAW_START_YEAR) return undefined;
 
   // 国民の祝日
   const holidayName = getDefinedHolidayName(year, month, day);
