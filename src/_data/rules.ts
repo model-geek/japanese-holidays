@@ -464,10 +464,13 @@ interface ComputedHolidays {
 }
 
 /**
- * ルールのキーを取得（special/override は日付ベース）
+ * ルールのキーを取得
+ * - special: 日付ベース（同名複数ありえる）
+ * - override: 名前ベース（既存ルールを上書き）
+ * - その他: 名前ベース
  */
 function getRuleKey(rule: HolidayRule): string {
-  return rule.type === 'special' || rule.type === 'override'
+  return rule.type === 'special'
     ? formatDateStr(rule.year, rule.month, rule.day)
     : rule.name;
 }
@@ -494,13 +497,27 @@ function computeDefinedHolidays(year: number): ComputedHolidays {
       (state, change): IntermediateState => {
         // ルールの追加・削除・変更
         const rules = new Map(state.rules);
+
+        // 1. 通常ルールの追加
         for (const rule of change.add ?? []) {
+          if (rule.type === 'special' || rule.type === 'override') continue;
           rules.set(getRuleKey(rule), rule);
         }
+
+        // 2. 削除
         for (const item of change.remove ?? []) {
           rules.delete(typeof item === 'string' ? item : getRuleKey(item));
         }
+
+        // 3. 変更
         for (const rule of change.modify ?? []) {
+          rules.set(getRuleKey(rule), rule);
+        }
+
+        // 4. special/override（その年の計算時のみ、通常ルールを上書き）
+        for (const rule of change.add ?? []) {
+          if (rule.type !== 'special' && rule.type !== 'override') continue;
+          if (rule.year !== year) continue;
           rules.set(getRuleKey(rule), rule);
         }
 
@@ -525,19 +542,8 @@ function computeDefinedHolidays(year: number): ComputedHolidays {
       initialState
     );
 
-  // その年の override ルール名を収集（通常ルールをスキップするため）
-  const overriddenNames = new Set(
-    [...rules.values()]
-      .filter((rule): rule is OverrideRule => rule.type === 'override' && rule.year === year)
-      .map((rule) => rule.name)
-  );
-
-  // ルールから祝日を計算（override 対象の通常ルールはスキップ）
+  // ルールから祝日を計算
   const ruleBasedHolidays: [string, string][] = [...rules.values()]
-    // override/special 以外で、override 対象の名前を持つルールはスキップ
-    .filter((rule) =>
-      rule.type === 'override' || rule.type === 'special' || !overriddenNames.has(rule.name)
-    )
     .map((rule) => {
       const date = computeHolidayDate(rule, year);
       return date ? ([formatDateStr(year, date.month, date.day), rule.name] as [string, string]) : null;
