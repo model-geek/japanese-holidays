@@ -24,6 +24,9 @@ function getLastYear(holidays: Holiday[]): number {
  */
 function generateTestFile(holidays: Holiday[], lastYear: number): string {
   const holidayDates = holidays.map((h) => JSON.stringify(h.date));
+  const holidayEntries = holidays.map(
+    (h) => `[${JSON.stringify(h.date)},${JSON.stringify(h.name)}]`
+  );
 
   return `/**
  * このファイルは自動生成されるため、直接編集しないこと
@@ -34,11 +37,17 @@ function generateTestFile(holidays: Holiday[], lastYear: number): string {
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
 import { isNationalHoliday } from '../src/index.js';
+import { getHolidayName } from '../src/full.js';
 
 /**
  * 内閣府 CSV から取得した祝日日付セット
  */
 const holidaySet: ReadonlySet<string> = new Set([${holidayDates.join(',')}]);
+
+/**
+ * 内閣府 CSV から取得した祝日名マップ
+ */
+const holidayNames: ReadonlyMap<string, string> = new Map([${holidayEntries.join(',')}]);
 
 /**
  * 日付を YYYY-MM-DD 形式の文字列に変換する
@@ -105,6 +114,45 @@ describe('isNationalHoliday 全日付チェック', () => {
       errors.length,
       0,
       \`\${errors.length} 件の日付で判定が一致しません:\\n\${errors.slice(0, 20).join('\\n')}\`
+    );
+  });
+});
+
+describe('getHolidayName 全祝日チェック', () => {
+  it('全ての祝日の名前が正しい', () => {
+    const errors: string[] = [];
+
+    for (const [date, expectedName] of holidayNames) {
+      const actualName = getHolidayName(date);
+
+      if (actualName !== expectedName) {
+        errors.push(\`\${date}: expected "\${expectedName}", got "\${actualName}"\`);
+      }
+    }
+
+    assert.strictEqual(
+      errors.length,
+      0,
+      \`\${errors.length} 件の祝日で名前が一致しません:\\n\${errors.slice(0, 20).join('\\n')}\`
+    );
+  });
+
+  it('祝日でない日は undefined を返す', () => {
+    const errors: string[] = [];
+
+    for (const date of generateDateRange(1955, 1, 1, ${lastYear}, 12, 31)) {
+      if (holidaySet.has(date)) continue;
+
+      const actual = getHolidayName(date);
+      if (actual !== undefined) {
+        errors.push(\`\${date}: expected undefined, got "\${actual}"\`);
+      }
+    }
+
+    assert.strictEqual(
+      errors.length,
+      0,
+      \`\${errors.length} 件の非祝日で undefined 以外が返されました:\\n\${errors.slice(0, 20).join('\\n')}\`
     );
   });
 });
