@@ -75,9 +75,19 @@ interface OverrideRule {
 }
 
 /**
+ * 変更可能なルール（add/modify で使用可能）
+ */
+type ModifiableRule = FixedHolidayRule | HappyMondayRule | EquinoxRule;
+
+/**
+ * 追加専用ルール（add でのみ使用可能）
+ */
+type AddOnlyRule = SpecialRule | OverrideRule;
+
+/**
  * 祝日ルール
  */
-type HolidayRule = FixedHolidayRule | HappyMondayRule | EquinoxRule | SpecialRule | OverrideRule;
+type HolidayRule = ModifiableRule | AddOnlyRule;
 
 /**
  * 年ごとの法改正
@@ -87,7 +97,7 @@ interface YearlyChange {
   description: string;
   add?: HolidayRule[];
   remove?: (string | HolidayRule)[];
-  modify?: HolidayRule[];
+  modify?: ModifiableRule[];
   substituteHolidayStart?: { month: number; day: number };
   citizensHolidayStart?: boolean;
 }
@@ -498,9 +508,11 @@ function computeDefinedHolidays(year: number): ComputedHolidays {
         // ルールの追加・削除・変更
         const rules = new Map(state.rules);
 
-        // 1. 通常ルールの追加
+        // 1. 通常ルール・special の追加（override は後で処理）
         for (const rule of change.add ?? []) {
-          if (rule.type === 'special' || rule.type === 'override') continue;
+          if (rule.type === 'override') continue;
+          // special はその年の計算時のみ追加
+          if (rule.type === 'special' && rule.year !== year) continue;
           rules.set(getRuleKey(rule), rule);
         }
 
@@ -514,9 +526,9 @@ function computeDefinedHolidays(year: number): ComputedHolidays {
           rules.set(getRuleKey(rule), rule);
         }
 
-        // 4. special/override（その年の計算時のみ、通常ルールを上書き）
+        // 4. override（その年の計算時のみ、通常ルールを上書き）
         for (const rule of change.add ?? []) {
-          if (rule.type !== 'special' && rule.type !== 'override') continue;
+          if (rule.type !== 'override') continue;
           if (rule.year !== year) continue;
           rules.set(getRuleKey(rule), rule);
         }
