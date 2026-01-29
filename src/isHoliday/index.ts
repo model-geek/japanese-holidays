@@ -1,6 +1,6 @@
 import type { DateInput } from '../types.js';
 import { isWeekend } from '../isWeekend/index.js';
-import { isNationalHoliday2 } from '../isNationalHoliday2/index.js';
+import { isNationalHoliday } from '../isNationalHoliday/index.js';
 
 /**
  * 指定した日付が休日（祝日または土日）かどうかを判定する
@@ -21,5 +21,5 @@ import { isNationalHoliday2 } from '../isNationalHoliday2/index.js';
  * ```
  */
 export function isHoliday(date: DateInput): boolean {
-  return isWeekend(date) || isNationalHoliday2(date);
+  return isWeekend(date) || isNationalHoliday(date);
 }

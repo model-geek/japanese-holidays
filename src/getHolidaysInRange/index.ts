@@ -2,7 +2,7 @@ import type { DateInput, Holiday } from '../types.js';
 import { toJstDate } from '../_internal/jst.js';
 import { formatDate } from '../_internal/formatDate.js';
 import { collect } from '../_internal/dateTraversal.js';
-import { getHolidayName2 } from '../getHolidayName2/index.js';
+import { getHolidayName } from '../getHolidayName/index.js';
 
 /**
  * 期間内の祝日一覧を返す
@@ -26,7 +26,7 @@ export function getHolidaysInRange(start: DateInput, end: DateInput): Holiday[] 
 
   return collect(startDate, endDate, (date): Holiday | undefined => {
     const dateStr = formatDate(date);
-    const name = getHolidayName2(dateStr);
+    const name = getHolidayName(dateStr);
     return name !== undefined ? { date: dateStr, name } : undefined;
   });
 }
