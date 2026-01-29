@@ -86,7 +86,7 @@ interface YearlyChange {
   year: number;
   description: string;
   add?: HolidayRule[];
-  remove?: string[];
+  remove?: (string | HolidayRule)[];
   modify?: HolidayRule[];
   substituteHolidayStart?: { month: number; day: number };
   citizensHolidayStart?: boolean;
@@ -497,8 +497,8 @@ function computeDefinedHolidays(year: number): ComputedHolidays {
         for (const rule of change.add ?? []) {
           rules.set(getRuleKey(rule), rule);
         }
-        for (const name of change.remove ?? []) {
-          rules.delete(name);
+        for (const item of change.remove ?? []) {
+          rules.delete(typeof item === 'string' ? item : getRuleKey(item));
         }
         for (const rule of change.modify ?? []) {
           rules.set(getRuleKey(rule), rule);
