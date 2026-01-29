@@ -1,12 +1,9 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { createIsBusinessDay } from './index.js';
+import { isBusinessDay } from './index.js';
 import { toJstDate } from '../_internal/jst.js';
 
-describe('createIsBusinessDay', () => {
-  const mockHolidayDates = new Set(['2025-01-01', '2025-01-13']);
-  const isBusinessDay = createIsBusinessDay(mockHolidayDates);
-
+describe('isBusinessDay', () => {
   describe('営業日の判定', () => {
     it('平日かつ祝日でない場合 true を返す', () => {
       // 2025-01-06 は月曜日、祝日でない
@@ -52,18 +49,6 @@ describe('createIsBusinessDay', () => {
 
     it('Date オブジェクトで祝日を判定できる', () => {
       assert.strictEqual(isBusinessDay(toJstDate('2025-01-01')), false);
-    });
-  });
-
-  describe('Map をデータソースとして使用', () => {
-    it('Map でも動作する', () => {
-      const holidayNames = new Map([
-        ['2025-01-01', '元日'],
-        ['2025-01-13', '成人の日'],
-      ]);
-      const isBusinessDayWithMap = createIsBusinessDay(holidayNames);
-      assert.strictEqual(isBusinessDayWithMap('2025-01-06'), true);
-      assert.strictEqual(isBusinessDayWithMap('2025-01-01'), false);
     });
   });
 });

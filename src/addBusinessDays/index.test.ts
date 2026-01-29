@@ -1,13 +1,9 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { createAddBusinessDays } from './index.js';
+import { addBusinessDays } from './index.js';
 import { toJstDate } from '../_internal/jst.js';
 
-describe('createAddBusinessDays', () => {
-  // 2025-01-01 元日、2025-01-13 成人の日
-  const mockHolidayDates = new Set(['2025-01-01', '2025-01-13']);
-  const addBusinessDays = createAddBusinessDays(mockHolidayDates);
-
+describe('addBusinessDays', () => {
   describe('基本的な営業日計算', () => {
     it('営業日から 1 営業日後を計算できる', () => {
       // 2025-01-06（月）→ 2025-01-07（火）
@@ -74,18 +70,6 @@ describe('createAddBusinessDays', () => {
   describe('Date オブジェクトの受け付け', () => {
     it('Date オブジェクトで営業日を計算できる', () => {
       const result = addBusinessDays(toJstDate('2025-01-06'), 1);
-      assert.strictEqual(result.getTime(), toJstDate('2025-01-07').getTime());
-    });
-  });
-
-  describe('Map をデータソースとして使用', () => {
-    it('Map でも動作する', () => {
-      const holidayNames = new Map([
-        ['2025-01-01', '元日'],
-        ['2025-01-13', '成人の日'],
-      ]);
-      const addBusinessDaysWithMap = createAddBusinessDays(holidayNames);
-      const result = addBusinessDaysWithMap('2025-01-06', 1);
       assert.strictEqual(result.getTime(), toJstDate('2025-01-07').getTime());
     });
   });

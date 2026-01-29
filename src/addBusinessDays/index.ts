@@ -1,41 +1,24 @@
-import type { DateInput, DateLookup } from '../types.js';
-import { createIsBusinessDay } from '../isBusinessDay/index.js';
+import type { DateInput } from '../types.js';
+import { isBusinessDay } from '../isBusinessDay/index.js';
 import { advance } from '../_internal/dateTraversal.js';
 import { toJstDate } from '../_internal/jst.js';
 
 /**
- * addBusinessDays 関数を生成する
+ * 指定した日付から n 営業日後の日付を返す
  *
- * @param holidayDates - 祝日の日付セット
- * @returns addBusinessDays 関数
+ * @param date - 基準日（Date または YYYY-MM-DD 形式の文字列）
+ * @param days - 加算する営業日数
+ * @returns n 営業日後の Date オブジェクト
  *
  * @example
  * ```typescript
- * const addBusinessDays = createAddBusinessDays(holidayDates);
- * addBusinessDays('2025-01-06', 3);
- * // => Date（2025-01-09）
+ * addBusinessDays('2025-01-06', 1);
+ * // => Date（2025-01-07）
+ *
+ * addBusinessDays('2025-01-03', 1);
+ * // => Date（2025-01-06）（土日をスキップ）
  * ```
  */
-export function createAddBusinessDays(holidayDates: DateLookup) {
-  const isBusinessDay = createIsBusinessDay(holidayDates);
-
-  /**
-   * 指定した日付から n 営業日後の日付を返す
-   *
-   * @param date - 基準日（Date または YYYY-MM-DD 形式の文字列）
-   * @param days - 加算する営業日数
-   * @returns n 営業日後の Date オブジェクト
-   *
-   * @example
-   * ```typescript
-   * addBusinessDays('2025-01-06', 1);
-   * // => Date（2025-01-07）
-   *
-   * addBusinessDays('2025-01-03', 1);
-   * // => Date（2025-01-06）（土日をスキップ）
-   * ```
-   */
-  return function addBusinessDays(date: DateInput, days: number): Date {
-    return advance(toJstDate(date), days, isBusinessDay);
-  };
+export function addBusinessDays(date: DateInput, days: number): Date {
+  return advance(toJstDate(date), days, isBusinessDay);
 }
