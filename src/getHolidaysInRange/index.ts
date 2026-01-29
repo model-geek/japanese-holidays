@@ -1,6 +1,7 @@
 import type { DateInput, Holiday } from '../types.js';
+import { toJstDate } from '../_internal/jst.js';
 import { formatDate } from '../_internal/formatDate.js';
-import { addDays } from '../_internal/addDays.js';
+import { collect } from '../_internal/dateTraversal.js';
 import { getHolidayName2 } from '../getHolidayName2/index.js';
 
 /**
@@ -20,22 +21,12 @@ import { getHolidayName2 } from '../getHolidayName2/index.js';
  * ```
  */
 export function getHolidaysInRange(start: DateInput, end: DateInput): Holiday[] {
-  const startStr = formatDate(start);
-  const endStr = formatDate(end);
+  const startDate = toJstDate(start);
+  const endDate = toJstDate(end);
 
-  const result: Holiday[] = [];
-
-  // 開始日から終了日まで走査
-  let currentStr = startStr;
-  while (currentStr <= endStr) {
-    const name = getHolidayName2(currentStr);
-    if (name !== undefined) {
-      result.push({ date: currentStr, name });
-    }
-    // 次の日へ
-    const nextDate = addDays(currentStr, 1);
-    currentStr = formatDate(nextDate);
-  }
-
-  return result;
+  return collect(startDate, endDate, (date): Holiday | undefined => {
+    const dateStr = formatDate(date);
+    const name = getHolidayName2(dateStr);
+    return name !== undefined ? { date: dateStr, name } : undefined;
+  });
 }

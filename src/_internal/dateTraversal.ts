@@ -84,3 +84,24 @@ export const count = (
   const increment = predicate(current) ? 1 : 0;
   return count(addDays(current, 1), target, predicate, acc + increment);
 };
+
+/**
+ * 範囲内の日付を変換し、undefined でないものを収集する
+ *
+ * @param current - 現在の日付
+ * @param target - 終了日
+ * @param mapper - 日付を変換する関数（undefined を返すとスキップ）
+ * @param acc - 累積結果
+ * @returns 変換結果の配列
+ */
+export const collect = <T>(
+  current: Date,
+  target: Date,
+  mapper: (date: Date) => T | undefined,
+  acc: T[] = []
+): T[] => {
+  if (current.getTime() > target.getTime()) return acc;
+  const result = mapper(current);
+  const newAcc = result !== undefined ? [...acc, result] : acc;
+  return collect(addDays(current, 1), target, mapper, newAcc);
+};
