@@ -1,7 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { isNationalHoliday } from '../src/index.js';
-import { getHolidayName } from '../src/full.js';
+import { isNationalHoliday, getHolidayName } from '../src/index.js';
 import { holidaySet, holidayNames, lastYear } from './fixture/holiday-names.js';
 
 /**

@@ -158,8 +158,12 @@ describe('getHolidayName2', () => {
       assert.strictEqual(getHolidayName2('2024-10-14'), 'スポーツの日');
     });
 
-    it('2000-2019年は体育の日（第2月曜）', () => {
-      assert.strictEqual(getHolidayName2('2019-10-14'), '体育の日');
+    it('2019年は体育の日（スポーツの日）（名称変更直前）', () => {
+      assert.strictEqual(getHolidayName2('2019-10-14'), '体育の日（スポーツの日）');
+    });
+
+    it('2000-2018年は体育の日（第2月曜）', () => {
+      assert.strictEqual(getHolidayName2('2018-10-08'), '体育の日');
       assert.strictEqual(getHolidayName2('2000-10-09'), '体育の日');
     });
 
@@ -190,14 +194,14 @@ describe('getHolidayName2', () => {
   });
 
   describe('振替休日', () => {
-    it('祝日が日曜の場合、翌月曜が振替休日', () => {
+    it('祝日が日曜の場合、翌月曜が休日', () => {
       // 2025-02-23 (日) → 2025-02-24 (月) が振替休日
-      assert.strictEqual(getHolidayName2('2025-02-24'), '振替休日');
+      assert.strictEqual(getHolidayName2('2025-02-24'), '休日');
     });
 
     it('複数の祝日が連続して日曜から始まる場合', () => {
       // 2019-05-03 (金), 05-04 (土), 05-05 (日), 05-06 (月) が振替休日
-      assert.strictEqual(getHolidayName2('2019-05-06'), '振替休日');
+      assert.strictEqual(getHolidayName2('2019-05-06'), '休日');
     });
   });
 
@@ -215,28 +219,28 @@ describe('getHolidayName2', () => {
   });
 
   describe('特別な祝日', () => {
-    it('皇太子明仁親王の結婚の儀（1959-04-10）', () => {
-      assert.strictEqual(getHolidayName2('1959-04-10'), '皇太子明仁親王の結婚の儀');
+    it('結婚の儀（1959-04-10）', () => {
+      assert.strictEqual(getHolidayName2('1959-04-10'), '結婚の儀');
     });
 
-    it('昭和天皇の大喪の礼（1989-02-24）', () => {
-      assert.strictEqual(getHolidayName2('1989-02-24'), '昭和天皇の大喪の礼');
+    it('大喪の礼（1989-02-24）', () => {
+      assert.strictEqual(getHolidayName2('1989-02-24'), '大喪の礼');
     });
 
     it('即位礼正殿の儀（1990-11-12）', () => {
       assert.strictEqual(getHolidayName2('1990-11-12'), '即位礼正殿の儀');
     });
 
-    it('皇太子徳仁親王の結婚の儀（1993-06-09）', () => {
-      assert.strictEqual(getHolidayName2('1993-06-09'), '皇太子徳仁親王の結婚の儀');
+    it('結婚の儀（1993-06-09）', () => {
+      assert.strictEqual(getHolidayName2('1993-06-09'), '結婚の儀');
     });
 
-    it('天皇の即位の日（2019-05-01）', () => {
-      assert.strictEqual(getHolidayName2('2019-05-01'), '天皇の即位の日');
+    it('休日（祝日扱い）（2019-05-01）', () => {
+      assert.strictEqual(getHolidayName2('2019-05-01'), '休日（祝日扱い）');
     });
 
-    it('即位礼正殿の儀（2019-10-22）', () => {
-      assert.strictEqual(getHolidayName2('2019-10-22'), '即位礼正殿の儀');
+    it('休日（祝日扱い）（2019-10-22）', () => {
+      assert.strictEqual(getHolidayName2('2019-10-22'), '休日（祝日扱い）');
     });
   });
 

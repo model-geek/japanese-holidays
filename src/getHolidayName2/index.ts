@@ -12,12 +12,12 @@ import { addDays } from '../_internal/addDays.js';
  * 特別な一回限りの祝日
  */
 const SPECIAL_HOLIDAYS: ReadonlyMap<string, string> = new Map([
-  ['1959-04-10', '皇太子明仁親王の結婚の儀'],
-  ['1989-02-24', '昭和天皇の大喪の礼'],
+  ['1959-04-10', '結婚の儀'],
+  ['1989-02-24', '大喪の礼'],
   ['1990-11-12', '即位礼正殿の儀'],
-  ['1993-06-09', '皇太子徳仁親王の結婚の儀'],
-  ['2019-05-01', '天皇の即位の日'],
-  ['2019-10-22', '即位礼正殿の儀'],
+  ['1993-06-09', '結婚の儀'],
+  ['2019-05-01', '休日（祝日扱い）'],
+  ['2019-10-22', '休日（祝日扱い）'],
 ]);
 
 /**
@@ -190,6 +190,9 @@ function getDefinedHolidayName(year: number, month: number, day: number): string
         // 7月に移動済み
       } else if (year >= 2020) {
         if (day === getNthWeekday(year, 10, 1, 2)) return 'スポーツの日';
+      } else if (year === 2019) {
+        // 2019年は名称変更直前で「体育の日（スポーツの日）」と記載
+        if (day === getNthWeekday(year, 10, 1, 2)) return '体育の日（スポーツの日）';
       } else if (year >= 2000) {
         if (day === getNthWeekday(year, 10, 1, 2)) return '体育の日';
       } else if (year >= 1966) {
@@ -310,7 +313,7 @@ function isCitizensHoliday(year: number, month: number, day: number): boolean {
  * // => '成人の日'
  *
  * getHolidayName2('2025-02-24');
- * // => '振替休日'
+ * // => '休日'
  *
  * getHolidayName2('2025-01-02');
  * // => undefined
@@ -328,10 +331,8 @@ export function getHolidayName2(date: DateInput): string | undefined {
   const holidayName = getDefinedHolidayName(year, month, day);
   if (holidayName) return holidayName;
 
-  // 振替休日
-  if (isSubstituteHoliday(year, month, day)) return '振替休日';
-
-  // 国民の休日
+  // 振替休日・国民の休日（内閣府データでは両方とも「休日」）
+  if (isSubstituteHoliday(year, month, day)) return '休日';
   if (isCitizensHoliday(year, month, day)) return '休日';
 
   return undefined;
