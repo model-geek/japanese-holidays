@@ -2,18 +2,18 @@
  * デフォルトエントリポイント
  * 祝日判定のみ。祝日名のデータを含まない。
  */
-import { isNationalHoliday } from './isNationalHoliday/index.js';
-import { getHolidayName } from './getHolidayName/index.js';
-import { isHoliday } from './isHoliday/index.js';
-import { isBusinessDay } from './isBusinessDay/index.js';
-import { addBusinessDays } from './addBusinessDays/index.js';
-import { subBusinessDays } from './subBusinessDays/index.js';
-import { getNextBusinessDay } from './getNextBusinessDay/index.js';
-import { getPreviousBusinessDay } from './getPreviousBusinessDay/index.js';
-import { countBusinessDays } from './countBusinessDays/index.js';
-import { getLastBusinessDayOfMonth } from './getLastBusinessDayOfMonth/index.js';
-import { getLastBusinessDayOfWeek } from './getLastBusinessDayOfWeek/index.js';
-import { isWeekend } from './isWeekend/index.js';
+import { isNationalHoliday } from './isNationalHoliday/index.ts';
+import { getHolidayName } from './getHolidayName/index.ts';
+import { isHoliday } from './isHoliday/index.ts';
+import { isBusinessDay } from './isBusinessDay/index.ts';
+import { addBusinessDays } from './addBusinessDays/index.ts';
+import { subBusinessDays } from './subBusinessDays/index.ts';
+import { getNextBusinessDay } from './getNextBusinessDay/index.ts';
+import { getPreviousBusinessDay } from './getPreviousBusinessDay/index.ts';
+import { countBusinessDays } from './countBusinessDays/index.ts';
+import { getLastBusinessDayOfMonth } from './getLastBusinessDayOfMonth/index.ts';
+import { getLastBusinessDayOfWeek } from './getLastBusinessDayOfWeek/index.ts';
+import { isWeekend } from './isWeekend/index.ts';
 
 export {
   isNationalHoliday,
@@ -29,4 +29,4 @@ export {
   getLastBusinessDayOfMonth,
   getLastBusinessDayOfWeek,
 };
-export type { DateInput } from './types.js';
+export type { DateInput } from './types.ts';

@@ -1,12 +1,12 @@
-import type { DateInput } from '../types.js';
+import type { DateInput } from '../types.ts';
 import {
   getJstFullYear,
   getJstMonth,
   getJstDate,
   getJstDay,
   createJstDate,
-} from '../_internal/jst.js';
-import { addDays } from '../_internal/addDays.js';
+} from '../_internal/jst.ts';
+import { addDays } from '../_internal/addDays.ts';
 
 /**
  * 特別な一回限りの祝日

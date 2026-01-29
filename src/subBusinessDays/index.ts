@@ -1,7 +1,7 @@
-import type { DateInput } from '../types.js';
-import { isBusinessDay } from '../isBusinessDay/index.js';
-import { rewind } from '../_internal/dateTraversal.js';
-import { toJstDate } from '../_internal/jst.js';
+import type { DateInput } from '../types.ts';
+import { isBusinessDay } from '../isBusinessDay/index.ts';
+import { rewind } from '../_internal/dateTraversal.ts';
+import { toJstDate } from '../_internal/jst.ts';
 
 /**
  * 指定した日付から n 営業日前の日付を返す

@@ -3,12 +3,7 @@ import assert from 'node:assert';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import {
-  parseCsv,
-  generateHolidayDatesTs,
-  generateHolidayNamesTs,
-  fetchCsv,
-} from './generate-holidays.ts';
+import { parseCsv, fetchCsv } from './generate-check-all-test.ts';
 
 describe('parseCsv', () => {
   it('基本的な CSV をパースできる', () => {
@@ -65,66 +60,6 @@ describe('parseCsv', () => {
     const csv = '国民の祝日・休日月日,国民の祝日・休日名称\n2025/10/1,都民の日';
     const result = parseCsv(csv);
     assert.strictEqual(result[0].date, '2025-10-01');
-  });
-});
-
-describe('generateHolidayDatesTs', () => {
-  it('空配列の場合は空の dates を持つ TypeScript を生成する', () => {
-    const result = generateHolidayDatesTs([]);
-    assert.ok(result.includes('const dates: string[] = []'));
-  });
-
-  it('単一要素の配列で正しい TypeScript を生成する', () => {
-    const result = generateHolidayDatesTs([{ date: '2025-01-01', name: '元日' }]);
-    assert.ok(result.includes('["2025-01-01"]'));
-  });
-
-  it('複数要素の配列で正しい TypeScript を生成する', () => {
-    const result = generateHolidayDatesTs([
-      { date: '2025-01-01', name: '元日' },
-      { date: '2025-01-13', name: '成人の日' },
-    ]);
-    assert.ok(result.includes('["2025-01-01","2025-01-13"]'));
-  });
-
-  it('TSDoc コメントを含む', () => {
-    const result = generateHolidayDatesTs([]);
-    assert.ok(result.includes('祝日の日付セット'));
-  });
-
-  it('new Set(dates) を含む', () => {
-    const result = generateHolidayDatesTs([]);
-    assert.ok(result.includes('new Set(dates)'));
-  });
-});
-
-describe('generateHolidayNamesTs', () => {
-  it('空配列の場合は空の entries を持つ TypeScript を生成する', () => {
-    const result = generateHolidayNamesTs([]);
-    assert.ok(result.includes('const entries: [string, string][] = []'));
-  });
-
-  it('単一要素の配列で正しい TypeScript を生成する', () => {
-    const result = generateHolidayNamesTs([{ date: '2025-01-01', name: '元日' }]);
-    assert.ok(result.includes('["2025-01-01","元日"]'));
-  });
-
-  it('複数要素の配列で正しい TypeScript を生成する', () => {
-    const result = generateHolidayNamesTs([
-      { date: '2025-01-01', name: '元日' },
-      { date: '2025-01-13', name: '成人の日' },
-    ]);
-    assert.ok(result.includes('["2025-01-01","元日"],["2025-01-13","成人の日"]'));
-  });
-
-  it('TSDoc コメントを含む', () => {
-    const result = generateHolidayNamesTs([]);
-    assert.ok(result.includes('祝日の日付と名前のマップ'));
-  });
-
-  it('new Map(entries) を含む', () => {
-    const result = generateHolidayNamesTs([]);
-    assert.ok(result.includes('new Map(entries)'));
   });
 });
 

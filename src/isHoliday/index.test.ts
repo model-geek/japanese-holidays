@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { isHoliday } from './index.js';
-import { toJstDate } from '../_internal/jst.js';
+import { isHoliday } from './index.ts';
+import { toJstDate } from '../_internal/jst.ts';
 
 describe('isHoliday', () => {
   describe('祝日の判定', () => {

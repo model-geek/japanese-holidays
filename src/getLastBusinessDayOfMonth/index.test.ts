@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { getLastBusinessDayOfMonth } from './index.js';
-import { toJstDate } from '../_internal/jst.js';
+import { getLastBusinessDayOfMonth } from './index.ts';
+import { toJstDate } from '../_internal/jst.ts';
 
 describe('getLastBusinessDayOfMonth', () => {
   describe('月末が営業日の場合', () => {

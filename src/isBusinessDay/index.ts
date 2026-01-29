@@ -1,5 +1,5 @@
-import type { DateInput } from '../types.js';
-import { isHoliday } from '../isHoliday/index.js';
+import type { DateInput } from '../types.ts';
+import { isHoliday } from '../isHoliday/index.ts';
 
 /**
  * 指定した日付が営業日（祝日でも土日でもない）かどうかを判定する

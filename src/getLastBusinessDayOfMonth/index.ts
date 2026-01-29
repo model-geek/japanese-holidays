@@ -1,7 +1,7 @@
-import type { DateInput } from '../types.js';
-import { isBusinessDay } from '../isBusinessDay/index.js';
-import { getPreviousBusinessDay } from '../getPreviousBusinessDay/index.js';
-import { getEndOfMonth } from '../_internal/getEndOfMonth.js';
+import type { DateInput } from '../types.ts';
+import { isBusinessDay } from '../isBusinessDay/index.ts';
+import { getPreviousBusinessDay } from '../getPreviousBusinessDay/index.ts';
+import { getEndOfMonth } from '../_internal/getEndOfMonth.ts';
 
 /**
  * 指定した日付の月の最終営業日を返す

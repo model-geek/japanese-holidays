@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { isBusinessDay } from './index.js';
-import { toJstDate } from '../_internal/jst.js';
+import { isBusinessDay } from './index.ts';
+import { toJstDate } from '../_internal/jst.ts';
 
 describe('isBusinessDay', () => {
   describe('営業日の判定', () => {

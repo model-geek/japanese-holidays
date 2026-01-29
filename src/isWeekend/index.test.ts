@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { isWeekend } from './index.js';
+import { isWeekend } from './index.ts';
 
 describe('isWeekend', () => {
   describe('文字列入力', () => {

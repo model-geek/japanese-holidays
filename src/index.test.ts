@@ -13,7 +13,7 @@ import {
   getLastBusinessDayOfMonth,
   getLastBusinessDayOfWeek,
 } from './index.ts';
-import { toJstDate } from './_internal/jst.js';
+import { toJstDate } from './_internal/jst.ts';
 
 describe('default: isNationalHoliday', () => {
   it('祝日の場合 true を返す', () => {

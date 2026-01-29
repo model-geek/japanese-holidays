@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { getNextBusinessDay } from './index.js';
-import { toJstDate } from '../_internal/jst.js';
+import { getNextBusinessDay } from './index.ts';
+import { toJstDate } from '../_internal/jst.ts';
 
 describe('getNextBusinessDay', () => {
   describe('営業日からの次の営業日', () => {

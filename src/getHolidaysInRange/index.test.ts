@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { getHolidaysInRange } from './index.js';
-import { toJstDate } from '../_internal/jst.js';
+import { getHolidaysInRange } from './index.ts';
+import { toJstDate } from '../_internal/jst.ts';
 
 describe('getHolidaysInRange', () => {
   describe('基本的な範囲検索', () => {

@@ -1,5 +1,5 @@
-import type { DateInput } from '../types.js';
-import { createJstDate, getJstFullYear, getJstMonth } from './jst.js';
+import type { DateInput } from '../types.ts';
+import { createJstDate, getJstFullYear, getJstMonth } from './jst.ts';
 
 /**
  * 指定した日付の月末日を返す

@@ -1,7 +1,7 @@
-import type { DateInput } from '../types.js';
-import { isBusinessDay } from '../isBusinessDay/index.js';
-import { count } from '../_internal/dateTraversal.js';
-import { toJstDate } from '../_internal/jst.js';
+import type { DateInput } from '../types.ts';
+import { isBusinessDay } from '../isBusinessDay/index.ts';
+import { count } from '../_internal/dateTraversal.ts';
+import { toJstDate } from '../_internal/jst.ts';
 
 /**
  * 2つの日付間の営業日数をカウントする
