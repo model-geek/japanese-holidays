@@ -23,7 +23,6 @@ function getLastYear(holidays: Holiday[]): number {
  * フィクスチャファイルの内容を生成する
  */
 function generateFixtureFile(holidays: Holiday[], lastYear: number): string {
-  const holidayDates = holidays.map((h) => JSON.stringify(h.date));
   const holidayEntries = holidays.map(
     (h) => `[${JSON.stringify(h.date)},${JSON.stringify(h.name)}]`
   );
@@ -35,14 +34,14 @@ function generateFixtureFile(holidays: Holiday[], lastYear: number): string {
  */
 
 /**
- * 内閣府 CSV から取得した祝日日付セット
- */
-export const holidaySet: ReadonlySet<string> = new Set([${holidayDates.join(',')}]);
-
-/**
  * 内閣府 CSV から取得した祝日名マップ
  */
 export const holidayNames: ReadonlyMap<string, string> = new Map([${holidayEntries.join(',')}]);
+
+/**
+ * 内閣府 CSV から取得した祝日日付セット
+ */
+export const holidaySet: ReadonlySet<string> = new Set(holidayNames.keys());
 
 /**
  * CSV データの最終年
