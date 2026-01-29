@@ -1,18 +1,9 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { createGetHolidaysInRange } from './index.js';
+import { getHolidaysInRange } from './index.js';
 import { toJstDate } from '../_internal/jst.js';
 
-describe('createGetHolidaysInRange', () => {
-  const mockHolidayNames = new Map([
-    ['2025-01-01', '元日'],
-    ['2025-01-13', '成人の日'],
-    ['2025-02-11', '建国記念の日'],
-    ['2025-02-23', '天皇誕生日'],
-    ['2025-02-24', '振替休日'],
-  ]);
-  const getHolidaysInRange = createGetHolidaysInRange(mockHolidayNames);
-
+describe('getHolidaysInRange', () => {
   describe('基本的な範囲検索', () => {
     it('範囲内の祝日を返す', () => {
       const holidays = getHolidaysInRange('2025-01-01', '2025-01-31');
@@ -23,7 +14,7 @@ describe('createGetHolidaysInRange', () => {
     });
 
     it('祝日がない範囲では空配列を返す', () => {
-      const holidays = getHolidaysInRange('2025-03-01', '2025-03-31');
+      const holidays = getHolidaysInRange('2025-06-01', '2025-06-15');
       assert.deepStrictEqual(holidays, []);
     });
 
@@ -51,7 +42,7 @@ describe('createGetHolidaysInRange', () => {
         { date: '2025-01-13', name: '成人の日' },
         { date: '2025-02-11', name: '建国記念の日' },
         { date: '2025-02-23', name: '天皇誕生日' },
-        { date: '2025-02-24', name: '振替休日' },
+        { date: '2025-02-24', name: '休日' },
       ]);
     });
   });
@@ -85,20 +76,22 @@ describe('createGetHolidaysInRange', () => {
     });
   });
 
-  describe('ソート順', () => {
-    it('データの登録順に関係なく日付順で返す', () => {
-      // 登録順を逆にしたデータ
-      const unorderedData = new Map([
-        ['2025-02-11', '建国記念の日'],
-        ['2025-01-13', '成人の日'],
-        ['2025-01-01', '元日'],
-      ]);
-      const getHolidaysUnordered = createGetHolidaysInRange(unorderedData);
-      const holidays = getHolidaysUnordered('2025-01-01', '2025-02-28');
+  describe('祝日名の確認', () => {
+    it('振替休日は「休日」として返す', () => {
+      // 2025-02-23 (日) の振替休日
+      const holidays = getHolidaysInRange('2025-02-24', '2025-02-24');
       assert.deepStrictEqual(holidays, [
-        { date: '2025-01-01', name: '元日' },
-        { date: '2025-01-13', name: '成人の日' },
-        { date: '2025-02-11', name: '建国記念の日' },
+        { date: '2025-02-24', name: '休日' },
+      ]);
+    });
+
+    it('国民の休日は「休日」として返す', () => {
+      // 2009-09-22 は敬老の日と秋分の日に挟まれた国民の休日
+      const holidays = getHolidaysInRange('2009-09-21', '2009-09-23');
+      assert.deepStrictEqual(holidays, [
+        { date: '2009-09-21', name: '敬老の日' },
+        { date: '2009-09-22', name: '休日' },
+        { date: '2009-09-23', name: '秋分の日' },
       ]);
     });
   });
