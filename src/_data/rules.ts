@@ -512,7 +512,7 @@ function computeDefinedHolidays(year: number): ComputedHolidays {
         }
 
         // オリンピック特例で移動された祝日
-        const newOlympicHolidays: [string, string][] =
+        const olympicHolidays: [string, string][] =
           change.year === year && change.olympicException
             ? change.olympicException.map(
                 (m): [string, string] => [formatDateStr(year, m.month, m.day), m.name]
@@ -533,7 +533,7 @@ function computeDefinedHolidays(year: number): ComputedHolidays {
 
         return {
           rules,
-          olympicHolidays: [...state.olympicHolidays, ...newOlympicHolidays],
+          olympicHolidays,
           substituteHolidayStart,
           citizensHolidayEnabled,
         };
