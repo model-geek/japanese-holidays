@@ -1,13 +1,9 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { createCountBusinessDays } from './index.js';
+import { countBusinessDays } from './index.js';
 import { toJstDate } from '../_internal/jst.js';
 
-describe('createCountBusinessDays', () => {
-  // 2025-01-01 元日、2025-01-13 成人の日
-  const mockHolidayDates = new Set(['2025-01-01', '2025-01-13']);
-  const countBusinessDays = createCountBusinessDays(mockHolidayDates);
-
+describe('countBusinessDays', () => {
   describe('基本的な営業日カウント', () => {
     it('連続する営業日をカウントする', () => {
       // 2025-01-06（月）〜 2025-01-09（木）= 4 営業日
@@ -75,17 +71,6 @@ describe('createCountBusinessDays', () => {
     it('Date オブジェクトで営業日をカウントできる', () => {
       const result = countBusinessDays(toJstDate('2025-01-06'), toJstDate('2025-01-09'));
       assert.strictEqual(result, 4);
-    });
-  });
-
-  describe('Map をデータソースとして使用', () => {
-    it('Map でも動作する', () => {
-      const holidayNames = new Map([
-        ['2025-01-01', '元日'],
-        ['2025-01-13', '成人の日'],
-      ]);
-      const countBusinessDaysWithMap = createCountBusinessDays(holidayNames);
-      assert.strictEqual(countBusinessDaysWithMap('2025-01-06', '2025-01-09'), 4);
     });
   });
 });
