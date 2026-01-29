@@ -1,5 +1,5 @@
-import type { DateInput } from '../types.js';
-import { getJstDay } from '../_internal/jst.js';
+import type { DateInput } from '../types.ts';
+import { getJstDay } from '../_internal/jst.ts';
 
 /**
  * 指定した日付が土日かどうかを判定する

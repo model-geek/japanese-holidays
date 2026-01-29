@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { addBusinessDays } from './index.js';
-import { toJstDate } from '../_internal/jst.js';
+import { addBusinessDays } from './index.ts';
+import { toJstDate } from '../_internal/jst.ts';
 
 describe('addBusinessDays', () => {
   describe('基本的な営業日計算', () => {

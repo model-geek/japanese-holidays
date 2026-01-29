@@ -1,7 +1,7 @@
-import type { DateInput } from '../types.js';
-import { isBusinessDay } from '../isBusinessDay/index.js';
-import { getPreviousBusinessDay } from '../getPreviousBusinessDay/index.js';
-import { getEndOfWeek } from '../_internal/getEndOfWeek.js';
+import type { DateInput } from '../types.ts';
+import { isBusinessDay } from '../isBusinessDay/index.ts';
+import { getPreviousBusinessDay } from '../getPreviousBusinessDay/index.ts';
+import { getEndOfWeek } from '../_internal/getEndOfWeek.ts';
 
 /**
  * 指定した日付の週の最終営業日を返す（月〜金の範囲で）

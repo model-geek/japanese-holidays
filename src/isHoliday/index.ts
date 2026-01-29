@@ -1,6 +1,6 @@
-import type { DateInput } from '../types.js';
-import { isWeekend } from '../isWeekend/index.js';
-import { isNationalHoliday } from '../isNationalHoliday/index.js';
+import type { DateInput } from '../types.ts';
+import { isWeekend } from '../isWeekend/index.ts';
+import { isNationalHoliday } from '../isNationalHoliday/index.ts';
 
 /**
  * 指定した日付が休日（祝日または土日）かどうかを判定する

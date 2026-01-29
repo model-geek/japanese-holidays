@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { getHolidayName } from './index.js';
+import { getHolidayName } from './index.ts';
 
 describe('getHolidayName', () => {
   describe('元日', () => {

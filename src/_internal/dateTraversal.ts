@@ -1,4 +1,4 @@
-import { addDays } from './addDays.js';
+import { addDays } from './addDays.ts';
 
 /** 日付が条件を満たすかを判定する関数 */
 type DatePredicate = (date: Date) => boolean;

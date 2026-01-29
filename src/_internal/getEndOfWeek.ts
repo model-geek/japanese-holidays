@@ -1,6 +1,6 @@
-import type { DateInput } from '../types.js';
-import { addDays } from './addDays.js';
-import { getJstDay } from './jst.js';
+import type { DateInput } from '../types.ts';
+import { addDays } from './addDays.ts';
+import { getJstDay } from './jst.ts';
 
 /**
  * 指定した日付の週の金曜日を返す

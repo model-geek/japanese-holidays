@@ -69,7 +69,7 @@ npm install
 ```typescript
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { isHoliday } from './core.js';
+import { isHoliday } from './core.ts';
 
 describe('isHoliday', () => {
   it('祝日の場合 true を返す', () => {

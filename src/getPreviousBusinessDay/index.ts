@@ -1,8 +1,8 @@
-import type { DateInput } from '../types.js';
-import { isBusinessDay } from '../isBusinessDay/index.js';
-import { findPrev } from '../_internal/dateTraversal.js';
-import { addDays } from '../_internal/addDays.js';
-import { toJstDate } from '../_internal/jst.js';
+import type { DateInput } from '../types.ts';
+import { isBusinessDay } from '../isBusinessDay/index.ts';
+import { findPrev } from '../_internal/dateTraversal.ts';
+import { addDays } from '../_internal/addDays.ts';
+import { toJstDate } from '../_internal/jst.ts';
 
 /**
  * 前の営業日を返す（当日が営業日でも前営業日を返す）

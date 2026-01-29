@@ -1,5 +1,5 @@
-import type { DateInput } from '../types.js';
-import { getJstFullYear, getJstMonth, getJstDate } from './jst.js';
+import type { DateInput } from '../types.ts';
+import { getJstFullYear, getJstMonth, getJstDate } from './jst.ts';
 
 /**
  * 日付を YYYY-MM-DD 形式の文字列に変換する

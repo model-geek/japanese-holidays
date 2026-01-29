@@ -2,8 +2,8 @@
 
 ## TypeScript
 
-- import パスには `.js` 拡張子を付ける（例: `import { x } from './core.js'`）
-  - `tsc` は import パスを書き換えないため、ESM で実行時に解決できるよう明示する必要がある
+- import パスには `.ts` 拡張子を付ける（例: `import { x } from './core.ts'`）
+  - `rewriteRelativeImportExtensions` により `tsc` がコンパイル時に `.js` に書き換える
 - ランタイム依存ライブラリは追加しない（devDependencies のみ許可）
 - ソースファイル・ディレクトリ名はキャメルケースを使用する（例: `holidayDates.ts`, `getHolidayName.ts`）
   - `index.ts` 等の慣習的な名前はそのまま使う

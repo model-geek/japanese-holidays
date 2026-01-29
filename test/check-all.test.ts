@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { isNationalHoliday, getHolidayName } from '../src/index.js';
-import { holidaySet, holidayNames, lastYear } from './fixture/holiday-names.js';
+import { isNationalHoliday, getHolidayName } from '../src/index.ts';
+import { holidaySet, holidayNames, lastYear } from './fixture/holiday-names.ts';
 
 /**
  * 日付を YYYY-MM-DD 形式の文字列に変換する

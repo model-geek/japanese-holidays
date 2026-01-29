@@ -1,8 +1,8 @@
-import type { DateInput, Holiday } from '../types.js';
-import { toJstDate } from '../_internal/jst.js';
-import { formatDate } from '../_internal/formatDate.js';
-import { collect } from '../_internal/dateTraversal.js';
-import { getHolidayName } from '../getHolidayName/index.js';
+import type { DateInput, Holiday } from '../types.ts';
+import { toJstDate } from '../_internal/jst.ts';
+import { formatDate } from '../_internal/formatDate.ts';
+import { collect } from '../_internal/dateTraversal.ts';
+import { getHolidayName } from '../getHolidayName/index.ts';
 
 /**
  * 期間内の祝日一覧を返す

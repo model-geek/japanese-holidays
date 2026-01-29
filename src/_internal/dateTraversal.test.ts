@@ -1,8 +1,8 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { findNext, findPrev, advance, rewind, count, collect } from './dateTraversal.js';
-import { toJstDate, getJstDay, getJstDate } from './jst.js';
-import { formatDate } from './formatDate.js';
+import { findNext, findPrev, advance, rewind, count, collect } from './dateTraversal.ts';
+import { toJstDate, getJstDay, getJstDate } from './jst.ts';
+import { formatDate } from './formatDate.ts';
 
 /** 平日かどうかを判定する（土日以外、JST ベース） */
 const isWeekday = (date: Date): boolean => {

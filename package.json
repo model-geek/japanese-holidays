@@ -25,7 +25,6 @@
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf dist",
-    "generate": "tsx scripts/generate-holidays.ts",
     "generate:check-all-test": "tsx scripts/generate-check-all-test.ts",
     "test": "TZ=UTC node --import tsx --test $(find src scripts test -name '*.test.ts')",
     "prepublishOnly": "npm run clean && npm run build"
