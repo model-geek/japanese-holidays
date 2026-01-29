@@ -64,18 +64,20 @@ interface SpecialRule {
 }
 
 /**
- * 祝日ルール
+ * 既存ルールの一時的な上書き（オリンピック特例など）
  */
-type HolidayRule = FixedHolidayRule | HappyMondayRule | EquinoxRule | SpecialRule;
-
-/**
- * オリンピック特例で移動された祝日
- */
-interface MovedHoliday {
-  name: string;
+interface OverrideRule {
+  type: 'override';
+  year: number;
   month: number;
   day: number;
+  name: string;
 }
+
+/**
+ * 祝日ルール
+ */
+type HolidayRule = FixedHolidayRule | HappyMondayRule | EquinoxRule | SpecialRule | OverrideRule;
 
 /**
  * 年ごとの法改正
@@ -88,7 +90,6 @@ interface YearlyChange {
   modify?: HolidayRule[];
   substituteHolidayStart?: { month: number; day: number };
   citizensHolidayStart?: boolean;
-  olympicException?: readonly MovedHoliday[];
 }
 
 // ============================================================================
@@ -268,14 +269,14 @@ const YEARLY_CHANGES: readonly YearlyChange[] = [
   {
     year: 2020,
     description: '天皇誕生日を2/23に新設、体育の日をスポーツの日に正式改称、オリンピック特例',
-    add: [{ type: 'fixed', month: 2, day: 23, name: '天皇誕生日' }],
+    add: [
+      { type: 'fixed', month: 2, day: 23, name: '天皇誕生日' },
+      { type: 'override', year: 2020, month: 7, day: 23, name: '海の日' },
+      { type: 'override', year: 2020, month: 7, day: 24, name: 'スポーツの日' },
+      { type: 'override', year: 2020, month: 8, day: 10, name: '山の日' },
+    ],
     remove: ['体育の日（スポーツの日）'],
     modify: [{ type: 'happyMonday', month: 10, weekday: 1, n: 2, name: 'スポーツの日' }],
-    olympicException: [
-      { name: '海の日', month: 7, day: 23 },
-      { name: 'スポーツの日', month: 7, day: 24 },
-      { name: '山の日', month: 8, day: 10 },
-    ],
   },
   // ------------------------------------------------------------------------
   // 2021年: オリンピック延期に伴う特例（継続）
@@ -283,10 +284,10 @@ const YEARLY_CHANGES: readonly YearlyChange[] = [
   {
     year: 2021,
     description: 'オリンピック延期に伴う祝日移動',
-    olympicException: [
-      { name: '海の日', month: 7, day: 22 },
-      { name: 'スポーツの日', month: 7, day: 23 },
-      { name: '山の日', month: 8, day: 8 },
+    add: [
+      { type: 'override', year: 2021, month: 7, day: 22, name: '海の日' },
+      { type: 'override', year: 2021, month: 7, day: 23, name: 'スポーツの日' },
+      { type: 'override', year: 2021, month: 8, day: 8, name: '山の日' },
     ],
   },
 ];
@@ -323,6 +324,7 @@ function computeHolidayDate(
         return { month: 9, day: calculateAutumnalEquinox(year) };
       }
     case 'special':
+    case 'override':
       return rule.year === year ? { month: rule.month, day: rule.day } : null;
   }
 }
@@ -462,10 +464,10 @@ interface ComputedHolidays {
 }
 
 /**
- * ルールのキーを取得（special ルールは日付ベース）
+ * ルールのキーを取得（special/override は日付ベース）
  */
 function getRuleKey(rule: HolidayRule): string {
-  return rule.type === 'special'
+  return rule.type === 'special' || rule.type === 'override'
     ? formatDateStr(rule.year, rule.month, rule.day)
     : rule.name;
 }
@@ -477,19 +479,17 @@ function computeDefinedHolidays(year: number): ComputedHolidays {
   // 中間状態の型
   interface IntermediateState {
     rules: ReadonlyMap<string, HolidayRule>;
-    olympicHolidays: readonly [string, string][];
     substituteHolidayStart: { year: number; month: number; day: number } | null;
     citizensHolidayEnabled: boolean;
   }
 
   const initialState: IntermediateState = {
     rules: new Map(),
-    olympicHolidays: [],
     substituteHolidayStart: null,
     citizensHolidayEnabled: false,
   };
 
-  const { rules, olympicHolidays, substituteHolidayStart, citizensHolidayEnabled } =
+  const { rules, substituteHolidayStart, citizensHolidayEnabled } =
     YEARLY_CHANGES.filter((change) => change.year <= year).reduce(
       (state, change): IntermediateState => {
         // ルールの追加・削除・変更
@@ -503,21 +503,6 @@ function computeDefinedHolidays(year: number): ComputedHolidays {
         for (const rule of change.modify ?? []) {
           rules.set(getRuleKey(rule), rule);
         }
-
-        // オリンピック特例（その年のみ）→ 移動対象のルールを削除
-        if (change.year === year && change.olympicException) {
-          for (const moved of change.olympicException) {
-            rules.delete(moved.name);
-          }
-        }
-
-        // オリンピック特例で移動された祝日
-        const olympicHolidays: [string, string][] =
-          change.year === year && change.olympicException
-            ? change.olympicException.map(
-                (m): [string, string] => [formatDateStr(year, m.month, m.day), m.name]
-              )
-            : [];
 
         // 振替休日制度
         const substituteHolidayStart = change.substituteHolidayStart
@@ -533,7 +518,6 @@ function computeDefinedHolidays(year: number): ComputedHolidays {
 
         return {
           rules,
-          olympicHolidays,
           substituteHolidayStart,
           citizensHolidayEnabled,
         };
@@ -541,8 +525,19 @@ function computeDefinedHolidays(year: number): ComputedHolidays {
       initialState
     );
 
-  // ルールから祝日を計算
+  // その年の override ルール名を収集（通常ルールをスキップするため）
+  const overriddenNames = new Set(
+    [...rules.values()]
+      .filter((rule): rule is OverrideRule => rule.type === 'override' && rule.year === year)
+      .map((rule) => rule.name)
+  );
+
+  // ルールから祝日を計算（override 対象の通常ルールはスキップ）
   const ruleBasedHolidays: [string, string][] = [...rules.values()]
+    // override/special 以外で、override 対象の名前を持つルールはスキップ
+    .filter((rule) =>
+      rule.type === 'override' || rule.type === 'special' || !overriddenNames.has(rule.name)
+    )
     .map((rule) => {
       const date = computeHolidayDate(rule, year);
       return date ? ([formatDateStr(year, date.month, date.day), rule.name] as [string, string]) : null;
@@ -550,7 +545,7 @@ function computeDefinedHolidays(year: number): ComputedHolidays {
     .filter((entry): entry is [string, string] => entry !== null);
 
   return {
-    definedHolidays: [...olympicHolidays, ...ruleBasedHolidays],
+    definedHolidays: ruleBasedHolidays,
     substituteHolidayStart,
     citizensHolidayEnabled,
   };
