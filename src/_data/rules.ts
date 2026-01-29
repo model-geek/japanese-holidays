@@ -249,8 +249,8 @@ const YEARLY_CHANGES: readonly YearlyChange[] = [
   {
     year: 2007,
     description: '昭和の日の新設、みどりの日を5/4に移動',
-    modify: [{ type: 'fixed', month: 4, day: 29, name: '昭和の日' }],
-    add: [{ type: 'fixed', month: 5, day: 4, name: 'みどりの日' }],
+    add: [{ type: 'fixed', month: 4, day: 29, name: '昭和の日' }],
+    modify: [{ type: 'fixed', month: 5, day: 4, name: 'みどりの日' }],
   },
   // ------------------------------------------------------------------------
   // 2016年: 山の日の新設
@@ -372,6 +372,26 @@ function extractDefinedHolidays(
 }
 
 /**
+ * 翌日以降で最初の平日（祝日でない日）を探す
+ */
+function findNextNonHoliday(
+  checkDate: Date,
+  holidays: ReadonlyMap<string, string>,
+  existingSubstitutes: readonly [string, string][]
+): string {
+  const checkYear = getJstFullYear(checkDate);
+  const checkMonth = getJstMonth(checkDate) + 1;
+  const checkDay = getJstDate(checkDate);
+  const checkDateStr = formatDateStr(checkYear, checkMonth, checkDay);
+
+  // 既存の祝日にも、これまでに追加した振替休日にもない場合
+  if (!holidays.has(checkDateStr) && !existingSubstitutes.some(([d]) => d === checkDateStr)) {
+    return checkDateStr;
+  }
+  return findNextNonHoliday(addDays(checkDate, 1), holidays, existingSubstitutes);
+}
+
+/**
  * 振替休日を計算
  */
 function computeSubstituteHolidays(
@@ -382,40 +402,24 @@ function computeSubstituteHolidays(
   if (!substituteStart) return [];
   if (year < substituteStart.year) return [];
 
-  const result: [string, string][] = [];
   const definedHolidays = extractDefinedHolidays(holidays, year);
 
-  for (const { month, day } of definedHolidays) {
+  return definedHolidays.reduce<[string, string][]>((result, { month, day }) => {
     // 振替休日制度施行日より前はスキップ
     if (
       year === substituteStart.year &&
       (month < substituteStart.month ||
         (month === substituteStart.month && day < substituteStart.day))
     ) {
-      continue;
+      return result;
     }
 
     const date = createJstDate(year, month - 1, day);
-    if (getJstDay(date) !== 0) continue; // 日曜日でなければスキップ
+    if (getJstDay(date) !== 0) return result; // 日曜日でなければスキップ
 
-    // 翌日以降で最初の平日（祝日でない日）を探す
-    let checkDate = addDays(date, 1);
-    while (true) {
-      const checkYear = getJstFullYear(checkDate);
-      const checkMonth = getJstMonth(checkDate) + 1;
-      const checkDay = getJstDate(checkDate);
-      const checkDateStr = formatDateStr(checkYear, checkMonth, checkDay);
-
-      // 既存の祝日にも、これまでに追加した振替休日にもない場合
-      if (!holidays.has(checkDateStr) && !result.some(([d]) => d === checkDateStr)) {
-        result.push([checkDateStr, '休日']);
-        break;
-      }
-      checkDate = addDays(checkDate, 1);
-    }
-  }
-
-  return result;
+    const substituteDateStr = findNextNonHoliday(addDays(date, 1), holidays, result);
+    return [...result, [substituteDateStr, '休日']];
+  }, []);
 }
 
 /**
@@ -486,87 +490,127 @@ function getRuleKey(rule: HolidayRule): string {
 }
 
 /**
+ * ルールを追加（既存キーがあればエラー）
+ */
+function addRule(
+  rules: Map<string, HolidayRule>,
+  rule: HolidayRule,
+  changeYear: number
+): void {
+  const key = getRuleKey(rule);
+  if (rules.has(key)) {
+    throw new Error(
+      `[${changeYear}] add で既存ルール "${key}" を追加しようとしました。変更の場合は modify を使用してください。`
+    );
+  }
+  rules.set(key, rule);
+}
+
+/**
+ * ルールを変更（上書き）
+ */
+function modifyRule(rules: Map<string, HolidayRule>, rule: HolidayRule): void {
+  rules.set(getRuleKey(rule), rule);
+}
+
+/**
+ * ルールを削除
+ */
+function removeRule(
+  rules: Map<string, HolidayRule>,
+  item: string | HolidayRule
+): void {
+  const key = typeof item === 'string' ? item : getRuleKey(item);
+  rules.delete(key);
+}
+
+/**
+ * 法改正をルールに適用
+ */
+function applyChange(
+  rules: Map<string, HolidayRule>,
+  change: YearlyChange,
+  targetYear: number
+): void {
+  // 通常ルールの追加（special/override 以外）
+  for (const rule of change.add ?? []) {
+    if (rule.type === 'special' || rule.type === 'override') continue;
+    addRule(rules, rule, change.year);
+  }
+
+  // special ルールの追加（対象年のみ）
+  for (const rule of change.add ?? []) {
+    if (rule.type !== 'special') continue;
+    if (rule.year !== targetYear) continue;
+    addRule(rules, rule, change.year);
+  }
+
+  // 削除
+  for (const item of change.remove ?? []) {
+    removeRule(rules, item);
+  }
+
+  // 変更
+  for (const rule of change.modify ?? []) {
+    modifyRule(rules, rule);
+  }
+
+  // override ルールの適用（対象年のみ、既存ルールを上書き）
+  for (const rule of change.add ?? []) {
+    if (rule.type !== 'override') continue;
+    if (rule.year !== targetYear) continue;
+    modifyRule(rules, rule);
+  }
+}
+
+/**
+ * 法改正の累積状態
+ */
+interface AccumulatedState {
+  rules: Map<string, HolidayRule>;
+  substituteHolidayStart: { year: number; month: number; day: number } | null;
+  citizensHolidayEnabled: boolean;
+}
+
+/**
  * YEARLY_CHANGES から指定年の祝日を計算
  */
 function computeDefinedHolidays(year: number): ComputedHolidays {
-  // 中間状態の型
-  interface IntermediateState {
-    rules: ReadonlyMap<string, HolidayRule>;
-    substituteHolidayStart: { year: number; month: number; day: number } | null;
-    citizensHolidayEnabled: boolean;
-  }
+  const { rules, substituteHolidayStart, citizensHolidayEnabled } = YEARLY_CHANGES.filter(
+    (change) => change.year <= year
+  ).reduce<AccumulatedState>(
+    (state, change) => {
+      applyChange(state.rules, change, year);
 
-  const initialState: IntermediateState = {
-    rules: new Map(),
-    substituteHolidayStart: null,
-    citizensHolidayEnabled: false,
-  };
-
-  const { rules, substituteHolidayStart, citizensHolidayEnabled } =
-    YEARLY_CHANGES.filter((change) => change.year <= year).reduce(
-      (state, change): IntermediateState => {
-        // ルールの追加・削除・変更
-        const rules = new Map(state.rules);
-
-        // 1. 通常ルール・special の追加（override は後で処理）
-        for (const rule of change.add ?? []) {
-          if (rule.type === 'override') continue;
-          // special はその年の計算時のみ追加
-          if (rule.type === 'special' && rule.year !== year) continue;
-          rules.set(getRuleKey(rule), rule);
-        }
-
-        // 2. 削除
-        for (const item of change.remove ?? []) {
-          rules.delete(typeof item === 'string' ? item : getRuleKey(item));
-        }
-
-        // 3. 変更
-        for (const rule of change.modify ?? []) {
-          rules.set(getRuleKey(rule), rule);
-        }
-
-        // 4. override（その年の計算時のみ、通常ルールを上書き）
-        for (const rule of change.add ?? []) {
-          if (rule.type !== 'override') continue;
-          if (rule.year !== year) continue;
-          rules.set(getRuleKey(rule), rule);
-        }
-
-        // 振替休日制度
-        const substituteHolidayStart = change.substituteHolidayStart
+      return {
+        rules: state.rules,
+        substituteHolidayStart: change.substituteHolidayStart
           ? {
               year: change.year,
               month: change.substituteHolidayStart.month,
               day: change.substituteHolidayStart.day,
             }
-          : state.substituteHolidayStart;
-
-        // 国民の休日制度
-        const citizensHolidayEnabled = state.citizensHolidayEnabled || change.citizensHolidayStart === true;
-
-        return {
-          rules,
-          substituteHolidayStart,
-          citizensHolidayEnabled,
-        };
-      },
-      initialState
-    );
+          : state.substituteHolidayStart,
+        citizensHolidayEnabled: state.citizensHolidayEnabled || change.citizensHolidayStart === true,
+      };
+    },
+    {
+      rules: new Map(),
+      substituteHolidayStart: null,
+      citizensHolidayEnabled: false,
+    }
+  );
 
   // ルールから祝日を計算
-  const ruleBasedHolidays: [string, string][] = [...rules.values()]
+  const definedHolidays: [string, string][] = [...rules.values()]
     .map((rule) => {
       const date = computeHolidayDate(rule, year);
-      return date ? ([formatDateStr(year, date.month, date.day), rule.name] as [string, string]) : null;
+      if (!date) return null;
+      return [formatDateStr(year, date.month, date.day), rule.name] as [string, string];
     })
     .filter((entry): entry is [string, string] => entry !== null);
 
-  return {
-    definedHolidays: ruleBasedHolidays,
-    substituteHolidayStart,
-    citizensHolidayEnabled,
-  };
+  return { definedHolidays, substituteHolidayStart, citizensHolidayEnabled };
 }
 
 /**
