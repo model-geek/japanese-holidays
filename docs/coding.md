@@ -20,13 +20,12 @@
 
 ```typescript
 // NG: 引数の配列を直接書き換えている
-export function addItemNg(list: string[], item: string): string[] {
+export function addItem(list: string[], item: string): void {
   list.push(item);
-  return list;
 }
 
 // OK: 新しい配列を返す
-export function addItemOk(list: readonly string[], item: string): string[] {
+export function addItem(list: readonly string[], item: string): string[] {
   return [...list, item];
 }
 ```
