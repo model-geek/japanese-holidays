@@ -51,24 +51,24 @@ export function addItemOk(list: readonly string[], item: string): string[] {
 
 ```typescript
 // 外部 API(イミュータブルに見える)
-export function unique<T>(items: readonly T[]): T[] {
-  const copy = [...items]; // 外部からの配列をコピー
-  inPlaceUnique(copy); // 内部で破壊的に変更
-  return copy; // 破壊されたのはこの関数内で作った配列のみ
+// パフォーマンス最適化: 数十年分の日付範囲(数万日)を走査する可能性があるため、
+// ループ内での配列コピーを避け、push を使用している。
+export function getHolidaysInRange(start: string, end: string): Holiday[] {
+  const result: Holiday[] = [];
+  collectHolidays(start, end, result); // 内部で破壊的に追加
+  return result; // 変更されたのはこの関数内で作った配列のみ
 }
 
 // 内部実装(ミュータブル許容)
-function inPlaceUnique<T>(items: T[]): void {
-  const seen = new Set<T>();
-  let writeIndex = 0;
-  for (let i = 0; i < items.length; i++) {
-    const v = items[i];
-    if (!seen.has(v)) {
-      seen.add(v);
-      items[writeIndex++] = v;
+function collectHolidays(start: string, end: string, out: Holiday[]): void {
+  let current = start;
+  while (current <= end) {
+    const name = getHolidayName(current);
+    if (name !== undefined) {
+      out.push({ date: current, name });
     }
+    current = addDays(current, 1);
   }
-  items.length = writeIndex;
 }
 ```
 
