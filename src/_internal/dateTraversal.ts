@@ -6,27 +6,44 @@ type DatePredicate = (date: Date) => boolean;
 /**
  * 条件を満たす次の日付を探す
  *
+ * 営業日計算などホットパスで頻繁に呼ばれるため、while ループで実装している。
+ * また、走査の深さに上限がないため、再帰ではスタックオーバーフローのリスクがある。
+ *
  * @param current - 現在の日付
  * @param predicate - 条件を満たすかを判定する関数
  * @returns 条件を満たす次の日付
  */
 export const findNext = (current: Date, predicate: DatePredicate): Date => {
-  return predicate(current) ? current : findNext(addDays(current, 1), predicate);
+  let date = current;
+  while (!predicate(date)) {
+    date = addDays(date, 1);
+  }
+  return date;
 };
 
 /**
  * 条件を満たす前の日付を探す
+ *
+ * 営業日計算などホットパスで頻繁に呼ばれるため、while ループで実装している。
+ * また、走査の深さに上限がないため、再帰ではスタックオーバーフローのリスクがある。
  *
  * @param current - 現在の日付
  * @param predicate - 条件を満たすかを判定する関数
  * @returns 条件を満たす前の日付
  */
 export const findPrev = (current: Date, predicate: DatePredicate): Date => {
-  return predicate(current) ? current : findPrev(addDays(current, -1), predicate);
+  let date = current;
+  while (!predicate(date)) {
+    date = addDays(date, -1);
+  }
+  return date;
 };
 
 /**
  * 条件を満たす日付を数えながら前進する
+ *
+ * 営業日計算などホットパスで頻繁に呼ばれるため、while ループで実装している。
+ * また、走査の深さに上限がないため、再帰ではスタックオーバーフローのリスクがある。
  *
  * @param current - 現在の日付
  * @param remaining - 残りのカウント数
@@ -39,14 +56,22 @@ export const advance = (
   predicate: DatePredicate
 ): Date => {
   if (remaining <= 0) return current;
-  const next = addDays(current, 1);
-  return predicate(next)
-    ? advance(next, remaining - 1, predicate)
-    : advance(next, remaining, predicate);
+  let date = current;
+  let count = remaining;
+  while (count > 0) {
+    date = addDays(date, 1);
+    if (predicate(date)) {
+      count--;
+    }
+  }
+  return date;
 };
 
 /**
  * 条件を満たす日付を数えながら後退する
+ *
+ * 営業日計算などホットパスで頻繁に呼ばれるため、while ループで実装している。
+ * また、走査の深さに上限がないため、再帰ではスタックオーバーフローのリスクがある。
  *
  * @param current - 現在の日付
  * @param remaining - 残りのカウント数
@@ -59,14 +84,22 @@ export const rewind = (
   predicate: DatePredicate
 ): Date => {
   if (remaining <= 0) return current;
-  const next = addDays(current, -1);
-  return predicate(next)
-    ? rewind(next, remaining - 1, predicate)
-    : rewind(next, remaining, predicate);
+  let date = current;
+  let count = remaining;
+  while (count > 0) {
+    date = addDays(date, -1);
+    if (predicate(date)) {
+      count--;
+    }
+  }
+  return date;
 };
 
 /**
  * 範囲内で条件を満たす日付をカウントする
+ *
+ * 日付範囲が数十年に及ぶ可能性があるため、while ループで実装している。
+ * 再帰では走査の深さに上限がなく、スタックオーバーフローのリスクがある。
  *
  * @param current - 現在の日付
  * @param target - 終了日
@@ -80,13 +113,24 @@ export const count = (
   predicate: DatePredicate,
   acc: number = 0
 ): number => {
-  if (current.getTime() > target.getTime()) return acc;
-  const increment = predicate(current) ? 1 : 0;
-  return count(addDays(current, 1), target, predicate, acc + increment);
+  let date = current;
+  let total = acc;
+  const targetTime = target.getTime();
+  while (date.getTime() <= targetTime) {
+    if (predicate(date)) {
+      total++;
+    }
+    date = addDays(date, 1);
+  }
+  return total;
 };
 
 /**
  * 範囲内の日付を変換し、undefined でないものを収集する
+ *
+ * 日付範囲が数十年に及ぶ可能性があるため、while ループで実装している。
+ * 再帰では走査の深さに上限がなく、スタックオーバーフローのリスクがある。
+ * また、ループ内での配列コピー([...result, item])を避け、push を使用している。
  *
  * @param current - 現在の日付
  * @param target - 終了日
@@ -100,8 +144,16 @@ export const collect = <T>(
   mapper: (date: Date) => T | undefined,
   acc: T[] = []
 ): T[] => {
-  if (current.getTime() > target.getTime()) return acc;
-  const result = mapper(current);
-  const newAcc = result !== undefined ? [...acc, result] : acc;
-  return collect(addDays(current, 1), target, mapper, newAcc);
+  // 性能のため、内部ではミュータブルな配列操作を使用
+  const result = [...acc];
+  let date = current;
+  const targetTime = target.getTime();
+  while (date.getTime() <= targetTime) {
+    const mapped = mapper(date);
+    if (mapped !== undefined) {
+      result.push(mapped);
+    }
+    date = addDays(date, 1);
+  }
+  return result;
 };
