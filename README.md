@@ -8,7 +8,7 @@
 
 * **同期的に動作** — 外部 API やデータベースへの通信なしに祝日を判定できます。
 * **常に最新** — 内閣府の祝日データが更新されると、新しいバージョンが自動的に公開されます。
-* **コンパクト** — 必要な機能だけを import すれば、不要なデータはバンドルに含まれません。
+* **コンパクト** — バンドラーの Tree Shaking により、使用する関数のみがバンドルに含まれます。
 * **直感的** — date-fns に似た、関数ベースのシンプルなインターフェースを提供します。
 * **高速** — 祝日の判定は定数時間で完了するため、ループ内でも安心して使用できます。
 
@@ -24,14 +24,9 @@
 
 また、ユーザーのプロジェクト向けに GitHub Actions ワークフローを提供しています。新バージョンが公開されると、依存を更新する PR が自動的に作成されます。
 
-### サブパスによるデータの最適化
+### Tree Shaking によるサイズ最適化
 
-用途に応じて 2 つのエントリポイントを提供します。
-
-| エントリポイント | 用途 | サイズ (gzip) |
-|---|---|---|
-| `japanese-holidays` | 祝日の判定のみ | 約 2.5 KB |
-| `japanese-holidays/full` | 祝日の判定 + 祝日名の取得 | 約 3.5 KB |
+単一のエントリポイントから全機能を提供します。バンドラーの Tree Shaking により、使用する関数のみが最終的なバンドルに含まれます。
 
 ### 高速な検索
 
@@ -39,41 +34,4 @@
 
 ## コントリビューター向け
 
-### 必要な環境
-
-- Node.js 24 以上（開発時）
-  - ネイティブ TypeScript サポートを使用するため
-  - nvm, fnm, asdf, mise 等のバージョンマネージャーを使用している場合、`.nvmrc` により自動で切り替わります
-
-### セットアップ
-
-```bash
-git clone https://github.com/model-geek/japanese-holidays.git
-cd japanese-holidays
-npm install
-```
-
-### 開発コマンド
-
-| コマンド | 説明 |
-|---|---|
-| `npm run build` | TypeScript をコンパイル |
-| `npm test` | テストを実行（Node.js 24+ 必須） |
-| `npm run clean` | ビルド成果物を削除 |
-
-### テストの書き方
-
-- テストファイルは `src/` 内に `.test.ts` の命名規則で配置する
-- Node.js 組み込みの `node:test` を使用する
-
-```typescript
-import { describe, it } from 'node:test';
-import assert from 'node:assert';
-import { isHoliday } from './core.ts';
-
-describe('isHoliday', () => {
-  it('祝日の場合 true を返す', () => {
-    assert.strictEqual(isHoliday('2026-01-01'), true);
-  });
-});
-```
+[開発ガイド](docs/development.md) を参照してください。

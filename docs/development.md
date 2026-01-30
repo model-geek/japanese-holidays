@@ -1,4 +1,26 @@
-# 開発ルール
+# 開発ガイド
+
+## 必要な環境
+
+- Node.js 24 以上
+  - ネイティブ TypeScript サポートを使用するため
+  - nvm, fnm, asdf, mise 等のバージョンマネージャーを使用している場合、`.nvmrc` により自動で切り替わります
+
+## セットアップ
+
+```bash
+git clone https://github.com/model-geek/japanese-holidays.git
+cd japanese-holidays
+npm install
+```
+
+## 開発コマンド
+
+| コマンド | 説明 |
+|---|---|
+| `npm run build` | TypeScript をコンパイル |
+| `npm test` | テストを実行 |
+| `npm run clean` | ビルド成果物を削除 |
 
 ## TypeScript
 
@@ -17,7 +39,7 @@
 ## データ設計
 
 - 日付は JST の `YYYY-MM-DD` 形式で扱う
-- 祝日判定用データ（`light`）と祝日名データ（`full`）はモジュールを分離し、サブパスエクスポートで提供する
+- 単一のエントリポイントから全機能を提供し、Tree Shaking で最適化する
 - 検索は Map/Set による O(1) ルックアップを使用する
 
 ## ビルド方法
@@ -104,6 +126,20 @@ GitHub Flow を採用する。
 
 - TDD に基づき、実装とセットで作成する
 - テストケースは仕様に基づいて記述する（Spec Driven）
+- テストファイルは `src/` 内に `.test.ts` の命名規則で配置する
+- Node.js 組み込みの `node:test` を使用する
+
+```typescript
+import { describe, it } from 'node:test';
+import assert from 'node:assert';
+import { isHoliday } from './index.ts';
+
+describe('isHoliday', () => {
+  it('祝日の場合 true を返す', () => {
+    assert.strictEqual(isHoliday('2026-01-01'), true);
+  });
+});
+```
 
 ## 開発フロー
 
@@ -120,7 +156,7 @@ AI エージェント（Claude Code 等）の活用を前提としたフロー�
 - Issue 上で仕様を議論し、以下が明確になった状態にする
   - 関数のシグネチャ（引数・戻り値の型）
   - 振る舞いの定義（境界値・エラーケースを含む）
-  - 影響するエントリポイント（`light` / `full` / 両方）
+  - 影響範囲（既存 API への影響など）
 - 仕様が確定したら Issue にまとめ、実装着手の判断基準とする
 
 ### 3. 実装
