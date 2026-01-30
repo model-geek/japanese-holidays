@@ -23,13 +23,14 @@ Issue 番号: $ARGUMENTS
 ### 1. Issue の内容を確認
 
 ```bash
-gh issue view $ARGUMENTS
+gh issue view $ARGUMENTS --comments
 ```
 
-Issue から以下を把握する:
+Issue 本文とコメントから以下を把握する:
 - 目的と背景
 - 要件と仕様
 - 受け入れ条件
+- コメントでの追加情報や議論内容
 
 ### 2. ブランチの作成
 
