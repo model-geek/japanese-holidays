@@ -184,9 +184,9 @@ export function getHolidayNames(dates: readonly string[]): string[] {
 - ホットパスで頻繁に呼ばれる
 - ループ内で配列のコピーが発生し、O(n^2) になる
 
-### 3-3. 必ずコメントで理由を記載する
+### 3-3. 必ず TSDoc で理由を記載する
 
-`while` や `let` を使う場合は、**必ず以下をコメントに記載してください**:
+`while` や `let` を使う場合は、**TSDoc で以下を記載してください**:
 
 1. なぜこの手法を用いるのか
 2. どういったケースでパフォーマンスが低下するのを防いでいるか
@@ -194,9 +194,17 @@ export function getHolidayNames(dates: readonly string[]): string[] {
 **例**
 
 ```typescript
-// パフォーマンス最適化: 大量の祝日データ(数十年分)を処理する可能性があるため、
-// ループ内での配列コピー([...result, item])を避け、push を使用している。
-// コピーを使うと O(n^2) になり、10年分(約150件)でも顕著な遅延が発生する。
+/**
+ * 指定した日付範囲内の祝日を収集する
+ *
+ * 大量の祝日データ(数十年分)を処理する可能性があるため、
+ * ループ内での配列コピー([...result, item])を避け、push を使用している。
+ * コピーを使うと O(n^2) になり、10 年分(約 150 件)でも顕著な遅延が発生する。
+ *
+ * @param start - 開始日
+ * @param end - 終了日
+ * @returns 祝日の配列
+ */
 function collectHolidays(start: string, end: string): Holiday[] {
   const result: Holiday[] = [];
   let current = start;
@@ -211,7 +219,7 @@ function collectHolidays(start: string, end: string): Holiday[] {
 }
 ```
 
-**コメントがない場合は NG:**
+**TSDoc がない場合は NG:**
 
 ```typescript
 // NG: なぜ while と let を使っているのか分からない
