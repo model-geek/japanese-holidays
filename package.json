@@ -1,9 +1,18 @@
 {
-  "name": "japanese-holidays",
+  "name": "@modelgeek/japanese-holidays",
   "version": "0.1.0",
   "description": "日本の祝日を扱うための TypeScript ライブラリ",
   "type": "module",
   "license": "MIT",
+  "author": "Model Geek",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/model-geek/japanese-holidays.git"
+  },
+  "homepage": "https://github.com/model-geek/japanese-holidays#readme",
+  "bugs": {
+    "url": "https://github.com/model-geek/japanese-holidays/issues"
+  },
   "keywords": [
     "japanese",
     "holidays",
