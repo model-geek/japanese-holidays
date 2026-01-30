@@ -25,8 +25,12 @@
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf dist",
+    "format": "echo \"TODO: add format script\"",
     "generate:check-all-test": "tsx scripts/generate-check-all-test.ts",
+    "lint": "echo \"TODO: add lint script\"",
     "test": "TZ=UTC node --import tsx --test $(find src scripts test -name '*.test.ts')",
+    "tidy": "npm run format && npm run lint && npm run typecheck && npm test",
+    "typecheck": "tsc --noEmit",
     "prepublishOnly": "npm run clean && npm run build"
   },
   "engines": {
