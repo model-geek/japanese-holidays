@@ -6,5 +6,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - @README.md — プロジェクト概要・特徴・仕組み
 - @docs/development.md — コーディング規約・開発ルール
+- @docs/coding.md — コーディングスタイルルール
 - @docs/documentation.md — ドキュメント作成ルール
 - @docs/tsdoc.md — TSDoc 記載方針
