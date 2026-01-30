@@ -1,6 +1,6 @@
 {
   "name": "@modelgeek/japanese-holidays",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "日本の祝日を扱うための TypeScript ライブラリ",
   "type": "module",
   "license": "MIT",
