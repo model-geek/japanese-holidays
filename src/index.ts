@@ -1,6 +1,7 @@
 /**
  * デフォルトエントリポイント
- * 祝日判定のみ。祝日名のデータを含まない。
+ *
+ * 祝日判定、祝日名取得、営業日計算などの全機能を提供する
  */
 import { isNationalHoliday } from './isNationalHoliday/index.ts';
 import { getHolidayName } from './getHolidayName/index.ts';
