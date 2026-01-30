@@ -403,6 +403,9 @@ function findNextNonHoliday(
 
 /**
  * 振替休日を計算
+ *
+ * 振替休日を順に処理し、既に決定した振替休日を考慮して次の振替休日を決定する。
+ * ループ内での配列コピー（[...result, item]）を避け、push を使用している。
  */
 function computeSubstituteHolidays(
   holidays: ReadonlyMap<string, string>,
@@ -413,23 +416,26 @@ function computeSubstituteHolidays(
   if (year < substituteStart.year) return [];
 
   const definedHolidays = extractDefinedHolidays(holidays, year);
+  const result: [string, string][] = [];
 
-  return definedHolidays.reduce<[string, string][]>((result, { month, day }) => {
+  for (const { month, day } of definedHolidays) {
     // 振替休日制度施行日より前はスキップ
     if (
       year === substituteStart.year &&
       (month < substituteStart.month ||
         (month === substituteStart.month && day < substituteStart.day))
     ) {
-      return result;
+      continue;
     }
 
     const date = createJstDate(year, month - 1, day);
-    if (getJstDay(date) !== 0) return result; // 日曜日でなければスキップ
+    if (getJstDay(date) !== 0) continue; // 日曜日でなければスキップ
 
     const substituteDateStr = findNextNonHoliday(addDays(date, 1), holidays, result);
-    return [...result, [substituteDateStr, '休日']];
-  }, []);
+    result.push([substituteDateStr, '休日']);
+  }
+
+  return result;
 }
 
 /**
