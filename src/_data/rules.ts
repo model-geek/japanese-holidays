@@ -373,22 +373,32 @@ function extractDefinedHolidays(
 
 /**
  * 翌日以降で最初の平日（祝日でない日）を探す
+ *
+ * @remarks
+ * 連続する祝日（GW 等）をスキップするため、ループを使用。
+ * 再帰では連続祝日の数に応じてスタックが深くなるリスクがある。
  */
 function findNextNonHoliday(
   checkDate: Date,
   holidays: ReadonlyMap<string, string>,
   existingSubstitutes: readonly [string, string][]
 ): string {
-  const checkYear = getJstFullYear(checkDate);
-  const checkMonth = getJstMonth(checkDate) + 1;
-  const checkDay = getJstDate(checkDate);
-  const checkDateStr = formatDateStr(checkYear, checkMonth, checkDay);
+  const MAX_DAYS = 365;
+  let current = checkDate;
 
-  // 既存の祝日にも、これまでに追加した振替休日にもない場合
-  if (!holidays.has(checkDateStr) && !existingSubstitutes.some(([d]) => d === checkDateStr)) {
-    return checkDateStr;
+  for (let i = 0; i < MAX_DAYS; i++) {
+    const checkYear = getJstFullYear(current);
+    const checkMonth = getJstMonth(current) + 1;
+    const checkDay = getJstDate(current);
+    const checkDateStr = formatDateStr(checkYear, checkMonth, checkDay);
+
+    if (!holidays.has(checkDateStr) && !existingSubstitutes.some(([d]) => d === checkDateStr)) {
+      return checkDateStr;
+    }
+    current = addDays(current, 1);
   }
-  return findNextNonHoliday(addDays(checkDate, 1), holidays, existingSubstitutes);
+
+  throw new Error('平日が見つかりませんでした');
 }
 
 /**
