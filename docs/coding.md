@@ -50,23 +50,19 @@ export function addItem(list: readonly string[], item: string): string[] {
 
 ```typescript
 // 外部 API(イミュータブルに見える)
-// パフォーマンス最適化: 数十年分の日付範囲(数万日)を走査する可能性があるため、
-// ループ内での配列コピーを避け、push を使用している。
-export function getHolidaysInRange(start: string, end: string): Holiday[] {
-  const result: Holiday[] = [];
-  collectHolidays(start, end, result); // 内部で破壊的に追加
+export function getHolidayNames(dates: readonly string[]): string[] {
+  const result: string[] = [];
+  collectHolidayNames(dates, result); // 内部で破壊的に追加
   return result; // 変更されたのはこの関数内で作った配列のみ
 }
 
-// 内部実装(ミュータブル許容)
-function collectHolidays(start: string, end: string, out: Holiday[]): void {
-  let current = start;
-  while (current <= end) {
-    const name = getHolidayName(current);
+// 内部実装(push を許容)
+function collectHolidayNames(dates: readonly string[], out: string[]): void {
+  for (const date of dates) {
+    const name = getHolidayName(date);
     if (name !== undefined) {
-      out.push({ date: current, name });
+      out.push(name);
     }
-    current = addDays(current, 1);
   }
 }
 ```
