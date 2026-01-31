@@ -93,4 +93,4 @@ Present Codex's feedback in the following structure:
 
 - Communicate with the user in Japanese
 - Present Codex's feedback translated to Japanese when appropriate
-- Use technical terms in their original English form (e.g., TypeScript, ESM, Tree Shaking)
+- Use technical terms in their original English form (e.g., TypeScript, ESM, Tree shaking)
