@@ -90,7 +90,12 @@ isBusinessDay('2025-01-01');  // false
 
 ## コントリビューター向け
 
-[開発ガイド](docs/development.md) を参照してください。
+| ドキュメント | 内容 |
+|---|---|
+| [開発ガイド](docs/development.md) | セットアップ、コマンド、開発フロー |
+| [コーディングルール](docs/coding.md) | イミュータビリティ、再帰、パフォーマンス方針 |
+| [ドキュメント作成ルール](docs/documentation.md) | 文体、表記、構成のルール |
+| [TSDoc 記載方針](docs/tsdoc.md) | TSDoc を書く対象と書き方 |
 
 ## ライセンス
 
